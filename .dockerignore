@@ -1,0 +1,17 @@
+.git
+.idea
+.vscode
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.tmp
+*.swp
+*.bak
+*.zip
+*.tar
+*.gz
+node_modules
+dist
+build
