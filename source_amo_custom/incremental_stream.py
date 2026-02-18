@@ -4,7 +4,7 @@ import logging
 from typing import Any, Mapping, MutableMapping, Optional
 
 from .base_stream import AmoStream
-from .constants import FULL_LOAD_THRESHOLD
+from .constants import FULL_LOAD_THRESHOLD, OVERLAP_SECONDS
 
 logger = logging.getLogger("airbyte")
 
@@ -41,12 +41,19 @@ class AmoIncrementalStream(AmoStream):
         return {self.cursor_field: new_value}
     
     def _get_start_timestamp(self, stream_state: Optional[Mapping[str, Any]]) -> int:
-        """Вычисляет начальный timestamp для фильтрации"""
+        """Вычисляет начальный timestamp для фильтрации с overlap окном"""
         start = self.start_date
         if self._cursor_value:
             start = max(start, self._cursor_value)
         elif stream_state and self.cursor_field in stream_state:
             start = max(start, stream_state[self.cursor_field])
+        # Overlap: откатываемся на OVERLAP_SECONDS назад, чтобы не потерять
+        # записи из-за eventual consistency amoCRM API.
+        # Дубли обрабатываются dedup-режимом Airbyte по primary_key.
+        # Leads: составной ключ (id, updated_at) — сохраняет историю.
+        # Остальные: ключ id — перезаписывается последняя версия.
+        if start > self.start_date:
+            start = max(self.start_date, start - OVERLAP_SECONDS)
         return start
     
     def _is_full_load_mode(self) -> bool:

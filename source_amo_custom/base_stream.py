@@ -61,10 +61,6 @@ class AmoStream(HttpStream):
             logger.info(f"[{self.name}] Received 204 - no more data")
             return None
         
-        if response.status_code == 429:
-            logger.warning(f"[{self.name}] Rate limit hit (429)")
-            return None
-            
         try:
             data = response.json()
             if not data:
@@ -85,6 +81,7 @@ class AmoStream(HttpStream):
                 logger.info(
                     f"[{self.name}] Last page (got {records_count} < {MAX_RECORDS_PER_PAGE})"
                 )
+                return None
                 
         except Exception as e:
             logger.warning(f"[{self.name}] Failed to parse JSON response: {e}")

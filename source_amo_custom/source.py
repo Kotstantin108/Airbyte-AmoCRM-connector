@@ -38,9 +38,12 @@ sys.excepthook = exception_hook
 # ============================================================================
 
 class Leads(AmoIncrementalStream):
-    """Поток сделок (leads)"""
+    """Поток сделок (leads) — с историей изменений"""
     name = "leads"
     cursor_field = "updated_at"
+    # Составной ключ: каждое обновление лида (новый updated_at) сохраняется
+    # как отдельная строка. Overlap-дубли дедуплицируются по (id, updated_at).
+    primary_key = [["id"], ["updated_at"]]
     
     def path(self, **kwargs) -> str:
         return "leads"
@@ -102,11 +105,11 @@ class Events(AmoIncrementalStream):
         
         page = next_page_token.get('page', 1) if next_page_token else 1
         
-        if not self._is_full_load_mode():
+        if self._is_full_load_mode():
+            params.update(self._build_full_load_params(page))
+        else:
             start = self._get_start_timestamp(stream_state)
-            if page == 1:
-                logger.info(f"[{self.name}] INCREMENTAL MODE - filter[created_at][from]={start}")
-            params['filter[created_at][from]'] = start
+            params.update(self._build_incremental_params(start, page))
         
         return params
 
