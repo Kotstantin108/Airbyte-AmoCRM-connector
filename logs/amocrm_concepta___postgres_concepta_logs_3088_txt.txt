@@ -1,0 +1,1044 @@
+>> ATTEMPT 1/1
+
+2026-02-24 07:43:27 info APPLY Stage: BUILD — (workloadId=d6b6b993-6086-445e-a887-2b31a9c8c9a3_3088_0_sync)
+2026-02-24 07:43:27 info APPLY Stage: CLAIM — (workloadId=d6b6b993-6086-445e-a887-2b31a9c8c9a3_3088_0_sync)
+2026-02-24 07:43:27 info Claimed: true for workload d6b6b993-6086-445e-a887-2b31a9c8c9a3_3088_0_sync via API in dataplane cf757fd6-d5c0-4c22-8226-2dd931a6d63f (ca22fac8-30c5-479c-a3fc-3bfb9419a0ca)
+2026-02-24 07:43:27 info APPLY Stage: LOAD_SHED — (workloadId=d6b6b993-6086-445e-a887-2b31a9c8c9a3_3088_0_sync)
+2026-02-24 07:43:27 info APPLY Stage: CHECK_STATUS — (workloadId=d6b6b993-6086-445e-a887-2b31a9c8c9a3_3088_0_sync)
+2026-02-24 07:43:27 info No pod found running for workload d6b6b993-6086-445e-a887-2b31a9c8c9a3_3088_0_sync
+2026-02-24 07:43:27 info APPLY Stage: MUTEX — (workloadId=d6b6b993-6086-445e-a887-2b31a9c8c9a3_3088_0_sync)
+2026-02-24 07:43:27 info Mutex key: d6b6b993-6086-445e-a887-2b31a9c8c9a3 specified for workload: d6b6b993-6086-445e-a887-2b31a9c8c9a3_3088_0_sync. Attempting to delete existing pods...
+2026-02-24 07:43:27 info Mutex key: d6b6b993-6086-445e-a887-2b31a9c8c9a3 specified for workload: d6b6b993-6086-445e-a887-2b31a9c8c9a3_3088_0_sync found no existing pods. Continuing...
+2026-02-24 07:43:27 info APPLY Stage: ARCHITECTURE — (workloadId=d6b6b993-6086-445e-a887-2b31a9c8c9a3_3088_0_sync)
+2026-02-24 07:43:27 info APPLY Stage: LAUNCH — (workloadId=d6b6b993-6086-445e-a887-2b31a9c8c9a3_3088_0_sync)
+2026-02-24 07:43:27 info [initContainer] image: airbyte/workload-init-container:2.0.1 resources: ResourceRequirements(claims=[], limits={memory=2Gi, cpu=1}, requests={memory=2Gi, cpu=1}, additionalProperties={})
+2026-02-24 07:43:27 info Launching replication pod: replication-job-3088-attempt-0 (selectors = {}) with containers:
+2026-02-24 07:43:27 info [source] image: kotstantin/amo-airbyte:v8 resources: ResourceRequirements(claims=[], limits={memory=2Gi, cpu=1}, requests={memory=1Gi, cpu=0.5}, additionalProperties={})
+2026-02-24 07:43:27 info [destination] image: airbyte/destination-postgres:3.0.7 resources: ResourceRequirements(claims=[], limits={memory=2Gi, cpu=1}, requests={memory=1Gi, cpu=0.5}, additionalProperties={})
+2026-02-24 07:43:27 info [orchestrator] image: airbyte/container-orchestrator:2.0.1 resources: ResourceRequirements(claims=[], limits={memory=2Gi, cpu=1}, requests={memory=2Gi, cpu=1}, additionalProperties={})
+2026-02-24 07:43:53 info Attempting to update workload: d6b6b993-6086-445e-a887-2b31a9c8c9a3_3088_0_sync to LAUNCHED.
+2026-02-24 07:43:53 info Pipeline completed for workload: d6b6b993-6086-445e-a887-2b31a9c8c9a3_3088_0_sync.
+2026-02-24 07:44:20 info Running replication worker...
+2026-02-24 07:44:20 info Starting replication worker. job id: 3088 attempt: 0
+2026-02-24 07:44:20 info 
+2026-02-24 07:44:20 info ----- START REPLICATION -----
+2026-02-24 07:44:20 info 
+2026-02-24 07:44:20 info Running destination...
+2026-02-24 07:44:20 error SLF4J(W): Class path contains multiple SLF4J providers.
+2026-02-24 07:44:20 error SLF4J(W): Found provider [org.apache.logging.slf4j.SLF4JServiceProvider@10bbd20a]
+2026-02-24 07:44:20 error SLF4J(W): Found provider [org.slf4j.reload4j.Reload4jServiceProvider@48503868]
+2026-02-24 07:44:20 error SLF4J(W): See https://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+2026-02-24 07:44:20 info Writing messages to protocol version 0.2.0
+2026-02-24 07:44:20 error SLF4J(I): Actual provider is of type [org.apache.logging.slf4j.SLF4JServiceProvider@10bbd20a]
+2026-02-24 07:44:20 info Reading messages from protocol version 0.2.0
+2026-02-24 07:44:20 info Reading messages from protocol version 0.2.0
+2026-02-24 07:44:20 info SourceReader started.
+2026-02-24 07:44:20 info MessageProcessor started.
+2026-02-24 07:44:20 info DestinationWriter started.
+2026-02-24 07:44:20 info DestinationReader started.
+2026-02-24 07:44:20 info Starting workload heartbeat (interval=10s; timeout=600s)
+2026-02-24 07:44:20 info Transitioning workload to running state
+2026-02-24 07:44:20 info Malformed non-Airbyte record (connectionId = d6b6b993-6086-445e-a887-2b31a9c8c9a3): 2026-02-24T04:44:19.776956082Z main WARN for URI classpath:AirbyteLogMessageTemplate.json found 2 resources, using the first one: jar:file:/airbyte/lib/io.airbyte.airbyte-cdk.java.airbyte-cdk-airbyte-cdk-core-0.48.18.jar!/AirbyteLogMessageTemplate.json
+2026-02-24 07:44:20 info Starting syncing SourceAmoCustom
+2026-02-24 07:44:20 info CONFIG start_date raw value: 1420071400, type: <class 'int'>
+2026-02-24 07:44:20 info Using start_date: 1420071400
+2026-02-24 07:44:20 info Marking stream custom_fields_leads as STARTED
+2026-02-24 07:44:20 info Setting state of SourceAmoCustom stream to {}
+2026-02-24 07:44:20 info Syncing stream: custom_fields_leads 
+2026-02-24 07:44:20 info Marking stream custom_fields_leads as RUNNING
+2026-02-24 07:44:20 info Stream status TRACE received of status: STARTED for stream custom_fields_leads
+2026-02-24 07:44:20 info Sending update for custom_fields_leads - null -> RUNNING
+2026-02-24 07:44:20 info Stream Status Update Received: custom_fields_leads - RUNNING
+2026-02-24 07:44:20 info Creating status: custom_fields_leads - RUNNING
+2026-02-24 07:44:20 info INFO main i.m.c.e.DefaultEnvironment(<init>):168 Established active environments: [k8s, cloud, cli, destination, connector]
+2026-02-24 07:44:21 info Read 135 records from custom_fields_leads stream
+2026-02-24 07:44:21 info Workload successfully transitioned to running state
+2026-02-24 07:44:21 info Stream status TRACE received of status: RUNNING for stream custom_fields_leads
+2026-02-24 07:44:21 info Marking stream custom_fields_leads as STOPPED
+2026-02-24 07:44:21 info Finished syncing custom_fields_leads
+2026-02-24 07:44:21 info SourceAmoCustom runtimes:
+Syncing stream custom_fields_leads 0:00:00.780769
+2026-02-24 07:44:21 info Marking stream leads as STARTED
+2026-02-24 07:44:21 info Setting state of SourceAmoCustom stream to {}
+2026-02-24 07:44:21 info Syncing stream: leads 
+2026-02-24 07:44:21 info [leads] INCREMENTAL MODE - filter[updated_at][from]=1420071400
+2026-02-24 07:44:21 info Marking stream leads as RUNNING
+2026-02-24 07:44:21 info Stream status TRACE received of status: COMPLETE for stream custom_fields_leads
+2026-02-24 07:44:21 info Stream status TRACE received of status: STARTED for stream leads
+2026-02-24 07:44:21 info Sending update for leads - null -> RUNNING
+2026-02-24 07:44:21 info Stream Status Update Received: leads - RUNNING
+2026-02-24 07:44:21 info Creating status: leads - RUNNING
+2026-02-24 07:44:21 info Stream status TRACE received of status: RUNNING for stream leads
+2026-02-24 07:44:22 info [leads] Got 250 records on current page
+2026-02-24 07:44:22 info [leads] Page 1 done, moving to page 2
+2026-02-24 07:44:22 info [leads] Got 250 records on current page
+2026-02-24 07:44:23 info [leads] Page 2 done, moving to page 3
+2026-02-24 07:44:23 warn WARN main c.k.j.j.JsonSchemaGenerator$MyJsonFormatVisitorWrapper(expectAnyFormat):725 Not able to generate jsonSchema-info for type: [simple type, class com.fasterxml.jackson.databind.JsonNode] - probably using custom serializer which does not override acceptJsonFormatVisitor
+2026-02-24 07:44:23 info [leads] Got 250 records on current page
+2026-02-24 07:44:23 info INFO main i.a.c.l.c.DataChannelBeanFactory(dataChannelMedium):60 Using data channel medium STDIO
+2026-02-24 07:44:23 info INFO main i.a.c.l.c.DataChannelBeanFactory(namespaceMapper):308 Going to use the given source value: SOURCE for namespace
+2026-02-24 07:44:24 info [leads] Page 3 done, moving to page 4
+2026-02-24 07:44:24 info [leads] Got 250 records on current page
+2026-02-24 07:44:24 info INFO main i.a.c.l.c.DestinationCatalog(<init>):54 Destination catalog initialized: [DestinationStream(unmappedNamespace=null, unmappedName=concepta_custom_fields_leads, importType=Dedupe(primaryKey=[[id]], cursor=[]), schema=ObjectType(properties={id=FieldType(type=IntegerType, nullable=true), code=FieldType(type=StringType, nullable=true), name=FieldType(type=StringType, nullable=true), sort=FieldType(type=IntegerType, nullable=true), type=FieldType(type=StringType, nullable=true), enums=FieldType(type=ArrayType(items=FieldType(type=ObjectType(properties={id=FieldType(type=IntegerType, nullable=true), sort=FieldType(type=IntegerType, nullable=true), value=FieldType(type=StringType, nullable=true)}, additionalProperties=false, required=[]), nullable=true)), nullable=true), group_id=FieldType(type=StringType, nullable=true), account_id=FieldType(type=IntegerType, nullable=true), is_visible=FieldType(type=BooleanType, nullable=true), entity_type=FieldType(type=StringType, nullable=true), is_required=FieldType(type=BooleanType, nullable=true), is_deletable=FieldType(type=BooleanType, nullable=true), is_predefined=FieldType(type=BooleanType, nullable=true), required_statuses=FieldType(type=ArrayTypeWithoutSchema, nullable=true)}, additionalProperties=true, required=[]), generationId=4, minimumGenerationId=4, syncId=3088, isFileBased=false, includeFiles=false, destinationObjectName=null, matchingKey=null, namespaceMapper=io.airbyte.cdk.load.command.NamespaceMapper@abbd101a, tableSchema=StreamTableSchema(tableNames=TableNames(rawTableName=null, tempTableName=TableName(namespace=airbyte_raw, name=airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10), finalTableName=TableName(namespace=airbyte_raw, name=concepta_custom_fields_leads)), columnSchema=ColumnSchema(inputSchema={id=FieldType(type=IntegerType, nullable=true), code=FieldType(type=StringType, nullable=true), name=FieldType(type=StringType, nullable=true), sort=FieldType(type=IntegerType, nullable=true), type=FieldType(type=StringType, nullable=true), enums=FieldType(type=ArrayType(items=FieldType(type=ObjectType(properties={id=FieldType(type=IntegerType, nullable=true), sort=FieldType(type=IntegerType, nullable=true), value=FieldType(type=StringType, nullable=true)}, additionalProperties=false, required=[]), nullable=true)), nullable=true), group_id=FieldType(type=StringType, nullable=true), account_id=FieldType(type=IntegerType, nullable=true), is_visible=FieldType(type=BooleanType, nullable=true), entity_type=FieldType(type=StringType, nullable=true), is_required=FieldType(type=BooleanType, nullable=true), is_deletable=FieldType(type=BooleanType, nullable=true), is_predefined=FieldType(type=BooleanType, nullable=true), required_statuses=FieldType(type=ArrayTypeWithoutSchema, nullable=true)}, inputToFinalColumnNames={id=id, code=code, name=name, sort=sort, type=type, enums=enums, group_id=group_id, account_id=account_id, is_visible=is_visible, entity_type=entity_type, is_required=is_required, is_deletable=is_deletable, is_predefined=is_predefined, required_statuses=required_statuses}, finalSchema={id=ColumnType(type=bigint, nullable=true), code=ColumnType(type=varchar, nullable=true), name=ColumnType(type=varchar, nullable=true), sort=ColumnType(type=bigint, nullable=true), type=ColumnType(type=varchar, nullable=true), enums=ColumnType(type=jsonb, nullable=true), group_id=ColumnType(type=varchar, nullable=true), account_id=ColumnType(type=bigint, nullable=true), is_visible=ColumnType(type=boolean, nullable=true), entity_type=ColumnType(type=varchar, nullable=true), is_required=ColumnType(type=boolean, nullable=true), is_deletable=ColumnType(type=boolean, nullable=true), is_predefined=ColumnType(type=boolean, nullable=true), required_statuses=ColumnType(type=jsonb, nullable=true)}), importType=Dedupe(primaryKey=[[id]], cursor=[]))), DestinationStream(unmappedNamespace=null, unmappedName=concepta_leads, importType=Dedupe(primaryKey=[[id], [updated_at]], cursor=[updated_at]), schema=ObjectType(properties={id=FieldType(type=IntegerType, nullable=true), name=FieldType(type=StringType, nullable=true), price=FieldType(type=IntegerType, nullable=true), score=FieldType(type=IntegerType, nullable=true), group_id=FieldType(type=IntegerType, nullable=true), _embedded=FieldType(type=ObjectTypeWithoutSchema, nullable=true), closed_at=FieldType(type=IntegerType, nullable=true), status_id=FieldType(type=IntegerType, nullable=true), account_id=FieldType(type=IntegerType, nullable=true), created_at=FieldType(type=IntegerType, nullable=true), created_by=FieldType(type=IntegerType, nullable=true), is_deleted=FieldType(type=BooleanType, nullable=true), updated_at=FieldType(type=IntegerType, nullable=true), updated_by=FieldType(type=IntegerType, nullable=true), pipeline_id=FieldType(type=IntegerType, nullable=true), loss_reason_id=FieldType(type=IntegerType, nullable=true), closest_task_at=FieldType(type=IntegerType, nullable=true), responsible_user_id=FieldType(type=IntegerType, nullable=true), custom_fields_values=FieldType(type=ArrayType(items=FieldType(type=ObjectType(properties={values=FieldType(type=ArrayTypeWithoutSchema, nullable=true), field_id=FieldType(type=IntegerType, nullable=true), field_code=FieldType(type=StringType, nullable=true), field_name=FieldType(type=StringType, nullable=true), field_type=FieldType(type=StringType, nullable=true)}, additionalProperties=false, required=[]), nullable=true)), nullable=true)}, additionalProperties=true, required=[]), generationId=1, minimumGenerationId=1, syncId=3088, isFileBased=false, includeFiles=false, destinationObjectName=null, matchingKey=null, namespaceMapper=io.airbyte.cdk.load.command.NamespaceMapper@abbd101a, tableSchema=StreamTableSchema(tableNames=TableNames(rawTableName=null, tempTableName=TableName(namespace=airbyte_raw, name=airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4), finalTableName=TableName(namespace=airbyte_raw, name=concepta_leads)), columnSchema=ColumnSchema(inputSchema={id=FieldType(type=IntegerType, nullable=true), name=FieldType(type=StringType, nullable=true), price=FieldType(type=IntegerType, nullable=true), score=FieldType(type=IntegerType, nullable=true), group_id=FieldType(type=IntegerType, nullable=true), _embedded=FieldType(type=ObjectTypeWithoutSchema, nullable=true), closed_at=FieldType(type=IntegerType, nullable=true), status_id=FieldType(type=IntegerType, nullable=true), account_id=FieldType(type=IntegerType, nullable=true), created_at=FieldType(type=IntegerType, nullable=true), created_by=FieldType(type=IntegerType, nullable=true), is_deleted=FieldType(type=BooleanType, nullable=true), updated_at=FieldType(type=IntegerType, nullable=true), updated_by=FieldType(type=IntegerType, nullable=true), pipeline_id=FieldType(type=IntegerType, nullable=true), loss_reason_id=FieldType(type=IntegerType, nullable=true), closest_task_at=FieldType(type=IntegerType, nullable=true), responsible_user_id=FieldType(type=IntegerType, nullable=true), custom_fields_values=FieldType(type=ArrayType(items=FieldType(type=ObjectType(properties={values=FieldType(type=ArrayTypeWithoutSchema, nullable=true), field_id=FieldType(type=IntegerType, nullable=true), field_code=FieldType(type=StringType, nullable=true), field_name=FieldType(type=StringType, nullable=true), field_type=FieldType(type=StringType, nullable=true)}, additionalProperties=false, required=[]), nullable=true)), nullable=true)}, inputToFinalColumnNames={id=id, name=name, price=price, score=score, group_id=group_id, _embedded=_embedded, closed_at=closed_at, status_id=status_id, account_id=account_id, created_at=created_at, created_by=created_by, is_deleted=is_deleted, updated_at=updated_at, updated_by=updated_by, pipeline_id=pipeline_id, loss_reason_id=loss_reason_id, closest_task_at=closest_task_at, responsible_user_id=responsible_user_id, custom_fields_values=custom_fields_values}, finalSchema={id=ColumnType(type=bigint, nullable=true), name=ColumnType(type=varchar, nullable=true), price=ColumnType(type=bigint, nullable=true), score=ColumnType(type=bigint, nullable=true), group_id=ColumnType(type=bigint, nullable=true), _embedded=ColumnType(type=jsonb, nullable=true), closed_at=ColumnType(type=bigint, nullable=true), status_id=ColumnType(type=bigint, nullable=true), account_id=ColumnType(type=bigint, nullable=true), created_at=ColumnType(type=bigint, nullable=true), created_by=ColumnType(type=bigint, nullable=true), is_deleted=ColumnType(type=boolean, nullable=true), updated_at=ColumnType(type=bigint, nullable=true), updated_by=ColumnType(type=bigint, nullable=true), pipeline_id=ColumnType(type=bigint, nullable=true), loss_reason_id=ColumnType(type=bigint, nullable=true), closest_task_at=ColumnType(type=bigint, nullable=true), responsible_user_id=ColumnType(type=bigint, nullable=true), custom_fields_values=ColumnType(type=jsonb, nullable=true)}), importType=Dedupe(primaryKey=[[id], [updated_at]], cursor=[updated_at]))), DestinationStream(unmappedNamespace=null, unmappedName=concepta_contacts, importType=Dedupe(primaryKey=[[id]], cursor=[updated_at]), schema=ObjectType(properties={id=FieldType(type=IntegerType, nullable=true), name=FieldType(type=StringType, nullable=true), group_id=FieldType(type=IntegerType, nullable=true), _embedded=FieldType(type=ObjectTypeWithoutSchema, nullable=true), last_name=FieldType(type=StringType, nullable=true), account_id=FieldType(type=IntegerType, nullable=true), created_at=FieldType(type=IntegerType, nullable=true), created_by=FieldType(type=IntegerType, nullable=true), first_name=FieldType(type=StringType, nullable=true), is_deleted=FieldType(type=BooleanType, nullable=true), updated_at=FieldType(type=IntegerType, nullable=true), updated_by=FieldType(type=IntegerType, nullable=true), closest_task_at=FieldType(type=IntegerType, nullable=true), responsible_user_id=FieldType(type=IntegerType, nullable=true), custom_fields_values=FieldType(type=ArrayType(items=FieldType(type=ObjectType(properties={values=FieldType(type=ArrayTypeWithoutSchema, nullable=true), field_id=FieldType(type=IntegerType, nullable=true), field_code=FieldType(type=StringType, nullable=true), field_name=FieldType(type=StringType, nullable=true), field_type=FieldType(type=StringType, nullable=true)}, additionalProperties=false, required=[]), nullable=true)), nullable=true)}, additionalProperties=true, required=[]), generationId=1, minimumGenerationId=1, syncId=3088, isFileBased=false, includeFiles=false, destinationObjectName=null, matchingKey=null, namespaceMapper=io.airbyte.cdk.load.command.NamespaceMapper@abbd101a, tableSchema=StreamTableSchema(tableNames=TableNames(rawTableName=null, tempTableName=TableName(namespace=airbyte_raw, name=airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27), finalTableName=TableName(namespace=airbyte_raw, name=concepta_contacts)), columnSchema=ColumnSchema(inputSchema={id=FieldType(type=IntegerType, nullable=true), name=FieldType(type=StringType, nullable=true), group_id=FieldType(type=IntegerType, nullable=true), _embedded=FieldType(type=ObjectTypeWithoutSchema, nullable=true), last_name=FieldType(type=StringType, nullable=true), account_id=FieldType(type=IntegerType, nullable=true), created_at=FieldType(type=IntegerType, nullable=true), created_by=FieldType(type=IntegerType, nullable=true), first_name=FieldType(type=StringType, nullable=true), is_deleted=FieldType(type=BooleanType, nullable=true), updated_at=FieldType(type=IntegerType, nullable=true), updated_by=FieldType(type=IntegerType, nullable=true), closest_task_at=FieldType(type=IntegerType, nullable=true), responsible_user_id=FieldType(type=IntegerType, nullable=true), custom_fields_values=FieldType(type=ArrayType(items=FieldType(type=ObjectType(properties={values=FieldType(type=ArrayTypeWithoutSchema, nullable=true), field_id=FieldType(type=IntegerType, nullable=true), field_code=FieldType(type=StringType, nullable=true), field_name=FieldType(type=StringType, nullable=true), field_type=FieldType(type=StringType, nullable=true)}, additionalProperties=false, required=[]), nullable=true)), nullable=true)}, inputToFinalColumnNames={id=id, name=name, group_id=group_id, _embedded=_embedded, last_name=last_name, account_id=account_id, created_at=created_at, created_by=created_by, first_name=first_name, is_deleted=is_deleted, updated_at=updated_at, updated_by=updated_by, closest_task_at=closest_task_at, responsible_user_id=responsible_user_id, custom_fields_values=custom_fields_values}, finalSchema={id=ColumnType(type=bigint, nullable=true), name=ColumnType(type=varchar, nullable=true), group_id=ColumnType(type=bigint, nullable=true), _embedded=ColumnType(type=jsonb, nullable=true), last_name=ColumnType(type=varchar, nullable=true), account_id=ColumnType(type=bigint, nullable=true), created_at=ColumnType(type=bigint, nullable=true), created_by=ColumnType(type=bigint, nullable=true), first_name=ColumnType(type=varchar, nullable=true), is_deleted=ColumnType(type=boolean, nullable=true), updated_at=ColumnType(type=bigint, nullable=true), updated_by=ColumnType(type=bigint, nullable=true), closest_task_at=ColumnType(type=bigint, nullable=true), responsible_user_id=ColumnType(type=bigint, nullable=true), custom_fields_values=ColumnType(type=jsonb, nullable=true)}), importType=Dedupe(primaryKey=[[id]], cursor=[updated_at]))), DestinationStream(unmappedNamespace=null, unmappedName=concepta_events, importType=Dedupe(primaryKey=[[id]], cursor=[created_at]), schema=ObjectType(properties={id=FieldType(type=StringType, nullable=true), type=FieldType(type=StringType, nullable=true), entity_id=FieldType(type=IntegerType, nullable=true), account_id=FieldType(type=IntegerType, nullable=true), created_at=FieldType(type=IntegerType, nullable=true), created_by=FieldType(type=IntegerType, nullable=true), entity_type=FieldType(type=StringType, nullable=true), value_after=FieldType(type=UnionType(options=[ArrayTypeWithoutSchema, ObjectTypeWithoutSchema, StringType], isLegacyUnion=false), nullable=true), value_before=FieldType(type=UnionType(options=[ArrayTypeWithoutSchema, ObjectTypeWithoutSchema, StringType], isLegacyUnion=false), nullable=true)}, additionalProperties=true, required=[]), generationId=1, minimumGenerationId=1, syncId=3088, isFileBased=false, includeFiles=false, destinationObjectName=null, matchingKey=null, namespaceMapper=io.airbyte.cdk.load.command.NamespaceMapper@abbd101a, tableSchema=StreamTableSchema(tableNames=TableNames(rawTableName=null, tempTableName=TableName(namespace=airbyte_raw, name=airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75), finalTableName=TableName(namespace=airbyte_raw, name=concepta_events)), columnSchema=ColumnSchema(inputSchema={id=FieldType(type=StringType, nullable=true), type=FieldType(type=StringType, nullable=true), entity_id=FieldType(type=IntegerType, nullable=true), account_id=FieldType(type=IntegerType, nullable=true), created_at=FieldType(type=IntegerType, nullable=true), created_by=FieldType(type=IntegerType, nullable=true), entity_type=FieldType(type=StringType, nullable=true), value_after=FieldType(type=UnionType(options=[ArrayTypeWithoutSchema, ObjectTypeWithoutSchema, StringType], isLegacyUnion=false), nullable=true), value_before=FieldType(type=UnionType(options=[ArrayTypeWithoutSchema, ObjectTypeWithoutSchema, StringType], isLegacyUnion=false), nullable=true)}, inputToFinalColumnNames={id=id, type=type, entity_id=entity_id, account_id=account_id, created_at=created_at, created_by=created_by, entity_type=entity_type, value_after=value_after, value_before=value_before}, finalSchema={id=ColumnType(type=varchar, nullable=true), type=ColumnType(type=varchar, nullable=true), entity_id=ColumnType(type=bigint, nullable=true), account_id=ColumnType(type=bigint, nullable=true), created_at=ColumnType(type=bigint, nullable=true), created_by=ColumnType(type=bigint, nullable=true), entity_type=ColumnType(type=varchar, nullable=true), value_after=ColumnType(type=jsonb, nullable=true), valu…
+2026-02-24 07:44:24 info INFO main c.z.h.HikariDataSource(<init>):79 HikariPool-1 - Starting...
+2026-02-24 07:44:24 info INFO main c.z.h.HikariDataSource(<init>):81 HikariPool-1 - Start completed.
+2026-02-24 07:44:24 info INFO main i.a.c.AirbyteConnectorRunnable(run):35 Executing class io.airbyte.integrations.destination.postgres.cdk.WriteOperationV2 operation.
+2026-02-24 07:44:24 info INFO main i.a.i.d.p.c.WriteOperationV2(execute):23 Running new pipe...
+2026-02-24 07:44:24 info INFO main i.a.c.l.d.DestinationLifecycle$initializeDestination$1(invokeSuspend):51 Initializing the destination
+2026-02-24 07:44:24 info INFO main i.a.i.d.p.c.PostgresAirbyteClient(execute):481 CREATE SCHEMA IF NOT EXISTS "airbyte_raw";
+2026-02-24 07:44:24 info [leads] Page 4 done, moving to page 5
+2026-02-24 07:44:24 info [leads] Got 250 records on current page
+2026-02-24 07:44:25 info [leads] Page 5 done, moving to page 6
+2026-02-24 07:44:25 info INFO main i.a.i.d.p.c.PostgresAirbyteClient(execute):481 CREATE SCHEMA IF NOT EXISTS "airbyte_raw";
+2026-02-24 07:44:25 info INFO main i.a.i.d.p.c.PostgresAirbyteClient(execute):481 CREATE SCHEMA IF NOT EXISTS "airbyte_raw";
+2026-02-24 07:44:25 info INFO main i.a.i.d.p.c.PostgresAirbyteClient(execute):481 CREATE SCHEMA IF NOT EXISTS "airbyte_raw";
+2026-02-24 07:44:25 info [leads] Got 250 records on current page
+2026-02-24 07:44:25 info INFO main i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT COUNT(*) AS "total" FROM "airbyte_raw"."concepta_custom_fields_leads";
+2026-02-24 07:44:25 info INFO main i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT COUNT(*) AS "total" FROM "airbyte_raw"."airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10";
+2026-02-24 07:44:25 info INFO main i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT COUNT(*) AS "total" FROM "airbyte_raw"."concepta_leads";
+2026-02-24 07:44:25 info INFO main i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT COUNT(*) AS "total" FROM "airbyte_raw"."airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4";
+2026-02-24 07:44:25 info INFO main i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT COUNT(*) AS "total" FROM "airbyte_raw"."concepta_contacts";
+2026-02-24 07:44:25 info INFO main i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT COUNT(*) AS "total" FROM "airbyte_raw"."airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27";
+2026-02-24 07:44:25 info INFO main i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT COUNT(*) AS "total" FROM "airbyte_raw"."concepta_events";
+2026-02-24 07:44:25 info INFO main i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT COUNT(*) AS "total" FROM "airbyte_raw"."airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75";
+2026-02-24 07:44:25 info INFO main i.a.c.l.d.DestinationLifecycle$initializeDestination$1(invokeSuspend):53 Destination initialized
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-2 i.a.c.l.d.DestinationLifecycle$initializeIndividualStreams$1$result$1$1(invokeSuspend):64 Starting stream loader for stream null:concepta_leads
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-1 i.a.c.l.d.DestinationLifecycle$initializeIndividualStreams$1$result$1$1(invokeSuspend):64 Starting stream loader for stream null:concepta_custom_fields_leads
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-2 i.a.c.l.t.d.DirectLoadTableDedupTruncateStreamLoader(start):288 DedupTruncateStreamLoader starting for stream concepta_leads
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-1 i.a.c.l.t.d.DirectLoadTableDedupTruncateStreamLoader(start):288 DedupTruncateStreamLoader starting for stream concepta_custom_fields_leads
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-1 i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT "_airbyte_generation_id" FROM "airbyte_raw"."airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10" LIMIT 1;
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-2 i.a.c.l.t.d.DirectLoadTableDedupTruncateStreamLoader(start):317 Creating new temp table: airbyte_raw.airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4 for stream concepta_leads
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-1 i.a.c.l.t.d.DirectLoadTableDedupTruncateStreamLoader(start):304 Recreating temp table airbyte_raw.airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10 (old generation ID: 3) for stream concepta_custom_fields_leads
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-1 i.a.i.d.p.c.PostgresAirbyteClient(execute):481             BEGIN TRANSACTION;
+            DROP TABLE IF EXISTS "airbyte_raw"."airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10";
+            CREATE TABLE IF NOT EXISTS "airbyte_raw"."airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10" (
+                "_airbyte_raw_id" varchar NOT NULL,
+"_airbyte_extracted_at" timestamp with time zone NOT NULL,
+"_airbyte_meta" jsonb NOT NULL,
+"_airbyte_generation_id" bigint NOT NULL,
+"id" bigint,
+"code" varchar,
+"name" varchar,
+"sort" bigint,
+"type" varchar,
+"enums" jsonb,
+"group_id" varchar,
+"account_id" bigint,
+"is_visible" boolean,
+"entity_type" varchar,
+"is_required" boolean,
+"is_deletable" boolean,
+"is_predefined" boolean,
+"required_statuses" jsonb
+            );
+            COMMIT;
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-2 i.a.i.d.p.c.PostgresAirbyteClient(execute):481             BEGIN TRANSACTION;
+            DROP TABLE IF EXISTS "airbyte_raw"."airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4";
+            CREATE TABLE IF NOT EXISTS "airbyte_raw"."airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4" (
+                "_airbyte_raw_id" varchar NOT NULL,
+"_airbyte_extracted_at" timestamp with time zone NOT NULL,
+"_airbyte_meta" jsonb NOT NULL,
+"_airbyte_generation_id" bigint NOT NULL,
+"id" bigint,
+"name" varchar,
+"price" bigint,
+"score" bigint,
+"group_id" bigint,
+"_embedded" jsonb,
+"closed_at" bigint,
+"status_id" bigint,
+"account_id" bigint,
+"created_at" bigint,
+"created_by" bigint,
+"is_deleted" boolean,
+"updated_at" bigint,
+"updated_by" bigint,
+"pipeline_id" bigint,
+"loss_reason_id" bigint,
+"closest_task_at" bigint,
+"responsible_user_id" bigint,
+"custom_fields_values" jsonb
+            );
+            COMMIT;
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-1 i.a.i.d.p.c.PostgresAirbyteClient(execute):481 CREATE INDEX IF NOT EXISTS "idx_pk_airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10" ON "airbyte_raw"."airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10" ("id");
+
+CREATE INDEX IF NOT EXISTS "idx_extracted_at_airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10" ON "airbyte_raw"."airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10" ("_airbyte_extracted_at");
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-2 i.a.i.d.p.c.PostgresAirbyteClient(execute):481 CREATE INDEX IF NOT EXISTS "idx_pk_airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4" ON "airbyte_raw"."airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4" ("id", "updated_at");
+CREATE INDEX IF NOT EXISTS "idx_cursor_airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4" ON "airbyte_raw"."airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4" ("updated_at");
+CREATE INDEX IF NOT EXISTS "idx_extracted_at_airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4" ON "airbyte_raw"."airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4" ("_airbyte_extracted_at");
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-2 i.a.c.l.d.DestinationLifecycle$initializeIndividualStreams$1$result$1$1(invokeSuspend):69 Stream loader for stream null:concepta_leads started
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-2 i.a.c.l.d.DestinationLifecycle$initializeIndividualStreams$1$result$1$1(invokeSuspend):64 Starting stream loader for stream null:concepta_contacts
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-2 i.a.c.l.t.d.DirectLoadTableDedupTruncateStreamLoader(start):288 DedupTruncateStreamLoader starting for stream concepta_contacts
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-2 i.a.c.l.t.d.DirectLoadTableDedupTruncateStreamLoader(start):317 Creating new temp table: airbyte_raw.airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27 for stream concepta_contacts
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-1 i.a.c.l.d.DestinationLifecycle$initializeIndividualStreams$1$result$1$1(invokeSuspend):69 Stream loader for stream null:concepta_custom_fields_leads started
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-1 i.a.c.l.d.DestinationLifecycle$initializeIndividualStreams$1$result$1$1(invokeSuspend):64 Starting stream loader for stream null:concepta_events
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-1 i.a.c.l.t.d.DirectLoadTableDedupTruncateStreamLoader(start):288 DedupTruncateStreamLoader starting for stream concepta_events
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-2 i.a.i.d.p.c.PostgresAirbyteClient(execute):481             BEGIN TRANSACTION;
+            DROP TABLE IF EXISTS "airbyte_raw"."airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27";
+            CREATE TABLE IF NOT EXISTS "airbyte_raw"."airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27" (
+                "_airbyte_raw_id" varchar NOT NULL,
+"_airbyte_extracted_at" timestamp with time zone NOT NULL,
+"_airbyte_meta" jsonb NOT NULL,
+"_airbyte_generation_id" bigint NOT NULL,
+"id" bigint,
+"name" varchar,
+"group_id" bigint,
+"_embedded" jsonb,
+"last_name" varchar,
+"account_id" bigint,
+"created_at" bigint,
+"created_by" bigint,
+"first_name" varchar,
+"is_deleted" boolean,
+"updated_at" bigint,
+"updated_by" bigint,
+"closest_task_at" bigint,
+"responsible_user_id" bigint,
+"custom_fields_values" jsonb
+            );
+            COMMIT;
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-1 i.a.c.l.t.d.DirectLoadTableDedupTruncateStreamLoader(start):317 Creating new temp table: airbyte_raw.airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75 for stream concepta_events
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-1 i.a.i.d.p.c.PostgresAirbyteClient(execute):481             BEGIN TRANSACTION;
+            DROP TABLE IF EXISTS "airbyte_raw"."airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75";
+            CREATE TABLE IF NOT EXISTS "airbyte_raw"."airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75" (
+                "_airbyte_raw_id" varchar NOT NULL,
+"_airbyte_extracted_at" timestamp with time zone NOT NULL,
+"_airbyte_meta" jsonb NOT NULL,
+"_airbyte_generation_id" bigint NOT NULL,
+"id" varchar,
+"type" varchar,
+"entity_id" bigint,
+"account_id" bigint,
+"created_at" bigint,
+"created_by" bigint,
+"entity_type" varchar,
+"value_after" jsonb,
+"value_before" jsonb
+            );
+            COMMIT;
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-2 i.a.i.d.p.c.PostgresAirbyteClient(execute):481 CREATE INDEX IF NOT EXISTS "idx_pk_airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27" ON "airbyte_raw"."airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27" ("id");
+CREATE INDEX IF NOT EXISTS "idx_cursor_airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27" ON "airbyte_raw"."airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27" ("updated_at");
+CREATE INDEX IF NOT EXISTS "idx_extracted_at_airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27" ON "airbyte_raw"."airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27" ("_airbyte_extracted_at");
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-1 i.a.i.d.p.c.PostgresAirbyteClient(execute):481 CREATE INDEX IF NOT EXISTS "idx_pk_airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75" ON "airbyte_raw"."airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75" ("id");
+CREATE INDEX IF NOT EXISTS "idx_cursor_airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75" ON "airbyte_raw"."airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75" ("created_at");
+CREATE INDEX IF NOT EXISTS "idx_extracted_at_airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75" ON "airbyte_raw"."airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75" ("_airbyte_extracted_at");
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-1 i.a.c.l.d.DestinationLifecycle$initializeIndividualStreams$1$result$1$1(invokeSuspend):69 Stream loader for stream null:concepta_events started
+2026-02-24 07:44:25 info INFO DefaultDispatcher-worker-2 i.a.c.l.d.DestinationLifecycle$initializeIndividualStreams$1$result$1$1(invokeSuspend):69 Stream loader for stream null:concepta_contacts started
+2026-02-24 07:44:25 info INFO main i.a.c.l.d.p.PipelineRunner(run):40 Destination Pipeline Starting...
+2026-02-24 07:44:25 info INFO main i.a.c.l.d.p.PipelineRunner(run):42 Starting state reconciler...
+2026-02-24 07:44:25 info INFO main i.a.c.l.d.p.PipelineRunner(run):45 Starting 1 pipelines...
+2026-02-24 07:44:26 info [leads] Page 6 done, moving to page 7
+2026-02-24 07:44:26 info [leads] Got 250 records on current page
+2026-02-24 07:44:26 info INFO pool-2-thread-1 i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_schema = 'airbyte_raw'
+AND table_name = 'airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10';
+2026-02-24 07:44:26 info INFO pool-2-thread-1 i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_schema = 'airbyte_raw'
+AND table_name = 'airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4';
+2026-02-24 07:44:26 info [leads] Page 7 done, moving to page 8
+2026-02-24 07:44:26 info [leads] Got 250 records on current page
+2026-02-24 07:44:27 info [leads] Page 8 done, moving to page 9
+2026-02-24 07:44:27 info [leads] Got 250 records on current page
+2026-02-24 07:44:27 info [leads] Page 9 done, moving to page 10
+2026-02-24 07:44:27 info [leads] Got 250 records on current page
+2026-02-24 07:44:28 info [leads] Page 10 done, moving to page 11
+2026-02-24 07:44:28 info [leads] Got 250 records on current page
+2026-02-24 07:44:29 info [leads] Page 11 done, moving to page 12
+2026-02-24 07:44:29 info [leads] Got 250 records on current page
+2026-02-24 07:44:30 info [leads] Page 12 done, moving to page 13
+2026-02-24 07:44:30 info [leads] Got 250 records on current page
+2026-02-24 07:44:31 info [leads] Page 13 done, moving to page 14
+2026-02-24 07:44:31 info [leads] Got 250 records on current page
+2026-02-24 07:44:31 info [leads] Page 14 done, moving to page 15
+2026-02-24 07:44:32 info [leads] Got 250 records on current page
+2026-02-24 07:44:32 info [leads] Page 15 done, moving to page 16
+2026-02-24 07:44:32 info [leads] Got 250 records on current page
+2026-02-24 07:44:33 info [leads] Page 16 done, moving to page 17
+2026-02-24 07:44:33 info [leads] Got 250 records on current page
+2026-02-24 07:44:34 info [leads] Page 17 done, moving to page 18
+2026-02-24 07:44:34 info [leads] Got 250 records on current page
+2026-02-24 07:44:34 info [leads] Page 18 done, moving to page 19
+2026-02-24 07:44:34 info [leads] Got 250 records on current page
+2026-02-24 07:44:35 info [leads] Page 19 done, moving to page 20
+2026-02-24 07:44:35 info [leads] Received 204 - no more data
+2026-02-24 07:44:35 info Read 4750 records from leads stream
+2026-02-24 07:44:35 info Marking stream leads as STOPPED
+2026-02-24 07:44:35 info Stream status TRACE received of status: COMPLETE for stream leads
+2026-02-24 07:44:35 info Finished syncing leads
+2026-02-24 07:44:35 info SourceAmoCustom runtimes:
+Syncing stream custom_fields_leads 0:00:00.780769
+Syncing stream leads 0:00:14.449790
+2026-02-24 07:44:35 info Marking stream contacts as STARTED
+2026-02-24 07:44:35 info Setting state of SourceAmoCustom stream to {}
+2026-02-24 07:44:35 info Stream status TRACE received of status: STARTED for stream contacts
+2026-02-24 07:44:35 info Syncing stream: contacts 
+2026-02-24 07:44:35 info [contacts] INCREMENTAL MODE - filter[updated_at][from]=1420071400
+2026-02-24 07:44:35 info Sending update for contacts - null -> RUNNING
+2026-02-24 07:44:35 info Marking stream contacts as RUNNING
+2026-02-24 07:44:35 info Stream Status Update Received: contacts - RUNNING
+2026-02-24 07:44:35 info Creating status: contacts - RUNNING
+2026-02-24 07:44:35 info [contacts] Got 250 records on current page
+2026-02-24 07:44:35 info Stream status TRACE received of status: RUNNING for stream contacts
+2026-02-24 07:44:35 info INFO pool-2-thread-1 i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_schema = 'airbyte_raw'
+AND table_name = 'airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27';
+2026-02-24 07:44:35 info Records read: 5000 (6 MB)
+2026-02-24 07:44:36 info [contacts] Page 1 done, moving to page 2
+2026-02-24 07:44:36 info [contacts] Got 250 records on current page
+2026-02-24 07:44:36 info [contacts] Page 2 done, moving to page 3
+2026-02-24 07:44:36 info [contacts] Got 250 records on current page
+2026-02-24 07:44:37 info [contacts] Page 3 done, moving to page 4
+2026-02-24 07:44:37 info [contacts] Got 250 records on current page
+2026-02-24 07:44:37 info [contacts] Page 4 done, moving to page 5
+2026-02-24 07:44:37 info [contacts] Got 250 records on current page
+2026-02-24 07:44:38 info [contacts] Page 5 done, moving to page 6
+2026-02-24 07:44:38 info [contacts] Got 250 records on current page
+2026-02-24 07:44:39 info [contacts] Page 6 done, moving to page 7
+2026-02-24 07:44:39 info [contacts] Got 250 records on current page
+2026-02-24 07:44:39 info [contacts] Page 7 done, moving to page 8
+2026-02-24 07:44:39 info [contacts] Got 250 records on current page
+2026-02-24 07:44:40 info [contacts] Page 8 done, moving to page 9
+2026-02-24 07:44:40 info [contacts] Got 250 records on current page
+2026-02-24 07:44:40 info [contacts] Page 9 done, moving to page 10
+2026-02-24 07:44:40 info [contacts] Got 250 records on current page
+2026-02-24 07:44:41 info [contacts] Page 10 done, moving to page 11
+2026-02-24 07:44:41 info [contacts] Got 250 records on current page
+2026-02-24 07:44:41 info [contacts] Page 11 done, moving to page 12
+2026-02-24 07:44:41 info [contacts] Got 250 records on current page
+2026-02-24 07:44:42 info [contacts] Page 12 done, moving to page 13
+2026-02-24 07:44:42 info [contacts] Got 250 records on current page
+2026-02-24 07:44:42 info [contacts] Page 13 done, moving to page 14
+2026-02-24 07:44:42 info [contacts] Got 250 records on current page
+2026-02-24 07:44:43 info [contacts] Page 14 done, moving to page 15
+2026-02-24 07:44:43 info [contacts] Got 250 records on current page
+2026-02-24 07:44:44 info [contacts] Page 15 done, moving to page 16
+2026-02-24 07:44:44 info [contacts] Got 250 records on current page
+2026-02-24 07:44:44 info [contacts] Page 16 done, moving to page 17
+2026-02-24 07:44:44 info [contacts] Got 250 records on current page
+2026-02-24 07:44:45 info [contacts] Page 17 done, moving to page 18
+2026-02-24 07:44:45 info [contacts] Got 250 records on current page
+2026-02-24 07:44:46 info [contacts] Page 18 done, moving to page 19
+2026-02-24 07:44:46 info [contacts] Received 204 - no more data
+2026-02-24 07:44:46 info Read 4500 records from contacts stream
+2026-02-24 07:44:46 info Marking stream contacts as STOPPED
+2026-02-24 07:44:46 info Finished syncing contacts
+2026-02-24 07:44:46 info SourceAmoCustom runtimes:
+Syncing stream contacts 0:00:10.305786
+Syncing stream custom_fields_leads 0:00:00.780769
+Syncing stream leads 0:00:14.449790
+2026-02-24 07:44:46 info Marking stream events as STARTED
+2026-02-24 07:44:46 info Stream status TRACE received of status: COMPLETE for stream contacts
+2026-02-24 07:44:46 info Setting state of SourceAmoCustom stream to {}
+2026-02-24 07:44:46 info Stream status TRACE received of status: STARTED for stream events
+2026-02-24 07:44:46 info Sending update for events - null -> RUNNING
+2026-02-24 07:44:46 info Syncing stream: events 
+2026-02-24 07:44:46 info Stream Status Update Received: events - RUNNING
+2026-02-24 07:44:46 info Creating status: events - RUNNING
+2026-02-24 07:44:46 info [events] INCREMENTAL MODE - filter[created_at][from]=1420071400
+2026-02-24 07:44:46 info Marking stream events as RUNNING
+2026-02-24 07:44:46 info [events] Got 250 records on current page
+2026-02-24 07:44:46 info Stream status TRACE received of status: RUNNING for stream events
+2026-02-24 07:44:46 info INFO pool-2-thread-1 i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_schema = 'airbyte_raw'
+AND table_name = 'airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75';
+2026-02-24 07:44:46 info [events] Page 1 done, moving to page 2
+2026-02-24 07:44:46 info [events] Received 204 - no more data
+2026-02-24 07:44:46 info Read 250 records from events stream
+2026-02-24 07:44:46 info Marking stream events as STOPPED
+2026-02-24 07:44:46 info Stream status TRACE received of status: COMPLETE for stream events
+2026-02-24 07:44:46 info Finished syncing events
+2026-02-24 07:44:46 info SourceAmoCustom runtimes:
+Syncing stream contacts 0:00:10.305786
+Syncing stream custom_fields_leads 0:00:00.780769
+Syncing stream events 0:00:00.825297
+Syncing stream leads 0:00:14.449790
+2026-02-24 07:44:46 info Finished syncing SourceAmoCustom
+2026-02-24 07:44:46 info Total records read: (9 MB)
+2026-02-24 07:44:46 info Schema validation was performed to a max of 10 records with errors per stream.
+2026-02-24 07:44:46 info SourceReader finished.
+2026-02-24 07:44:46 info Source queue closed — stopping message processor...
+2026-02-24 07:44:46 info MessageProcessor finished.
+2026-02-24 07:44:46 info DestinationWriter finished.
+2026-02-24 07:44:46 info INFO DefaultDispatcher-worker-2 i.a.c.l.d.i.JsonDestinationMessageInputFlow$collect$4(invokeSuspend):47 Input stream reader closed.
+2026-02-24 07:44:46 info INFO pool-2-thread-1 i.a.c.l.d.i.JsonDestinationMessageInputFlow(collect):51 Finished reading input.
+2026-02-24 07:44:46 info INFO pool-2-thread-1 i.a.c.l.d.i.DataFlowPipelineInputFlow(collect):58 Finished routing input.
+2026-02-24 07:44:46 info INFO DefaultDispatcher-worker-2 i.a.c.l.d.p.PipelineCompletionHandler$apply$2(invokeSuspend):31 Flushing 4 final aggregates...
+2026-02-24 07:44:46 info INFO DefaultDispatcher-worker-1 i.a.i.d.p.w.l.PostgresInsertBuffer(flush):59 Beginning insert into airbyte_raw.airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75
+2026-02-24 07:44:46 info INFO DefaultDispatcher-worker-4 i.a.i.d.p.w.l.PostgresInsertBuffer(flush):59 Beginning insert into airbyte_raw.airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10
+2026-02-24 07:44:46 info INFO DefaultDispatcher-worker-3 i.a.i.d.p.w.l.PostgresInsertBuffer(flush):59 Beginning insert into airbyte_raw.airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4
+2026-02-24 07:44:46 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.w.l.PostgresInsertBuffer(flush):59 Beginning insert into airbyte_raw.airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27
+2026-02-24 07:44:46 info INFO DefaultDispatcher-worker-4 i.a.i.d.p.w.l.PostgresInsertBuffer(flush):62 Finished insert of 135 row(s) into airbyte_raw.airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10
+2026-02-24 07:44:46 info INFO DefaultDispatcher-worker-1 i.a.i.d.p.w.l.PostgresInsertBuffer(flush):62 Finished insert of 250 row(s) into airbyte_raw.airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.w.l.PostgresInsertBuffer(flush):62 Finished insert of 4500 row(s) into airbyte_raw.airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-3 i.a.i.d.p.w.l.PostgresInsertBuffer(flush):62 Finished insert of 4750 row(s) into airbyte_raw.airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-3 i.a.c.l.d.p.PipelineCompletionHandler$apply$2(invokeSuspend):46 Final aggregates flushed.
+2026-02-24 07:44:47 info INFO main i.a.c.l.d.p.PipelineRunner(run):47 Individual pipelines complete...
+2026-02-24 07:44:47 info INFO main i.a.c.l.d.p.PipelineRunner(run):51 Disabling state reconciler...
+2026-02-24 07:44:47 info INFO main i.a.c.l.d.p.PipelineRunner(run):64 Flushing final states...
+2026-02-24 07:44:47 info Destination complete for events
+2026-02-24 07:44:47 info Sending update for events - RUNNING -> COMPLETE
+2026-02-24 07:44:47 info Stream Status Update Received: events - COMPLETE
+2026-02-24 07:44:47 info Updating status: events - COMPLETE
+2026-02-24 07:44:47 info Destination complete for leads
+2026-02-24 07:44:47 info Sending update for leads - RUNNING -> COMPLETE
+2026-02-24 07:44:47 info Stream Status Update Received: leads - COMPLETE
+2026-02-24 07:44:47 info Updating status: leads - COMPLETE
+2026-02-24 07:44:47 info Destination complete for custom_fields_leads
+2026-02-24 07:44:47 info Sending update for custom_fields_leads - RUNNING -> COMPLETE
+2026-02-24 07:44:47 info Stream Status Update Received: custom_fields_leads - COMPLETE
+2026-02-24 07:44:47 info Updating status: custom_fields_leads - COMPLETE
+2026-02-24 07:44:47 info Destination complete for contacts
+2026-02-24 07:44:47 info Sending update for contacts - RUNNING -> COMPLETE
+2026-02-24 07:44:47 info Stream Status Update Received: contacts - COMPLETE
+2026-02-24 07:44:47 info Updating status: contacts - COMPLETE
+2026-02-24 07:44:47 info INFO main i.a.c.l.d.p.PipelineRunner(run):75 Destination Pipeline Completed — Successfully
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-3 i.a.c.l.d.DestinationLifecycle$finalizeIndividualStreams$2$1$1(invokeSuspend):93 Finalizing stream null:concepta_leads
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-3 i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT "_airbyte_generation_id" FROM "airbyte_raw"."concepta_leads" LIMIT 1;
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-3 i.a.c.l.t.d.DirectLoadTableDedupTruncateStreamLoader(close):342 Upserting to temp temp table for stream concepta_leads
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-3 i.a.i.d.p.c.PostgresAirbyteClient(execute):481             BEGIN TRANSACTION;
+            DROP TABLE IF EXISTS "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017";
+            CREATE TABLE IF NOT EXISTS "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017" (
+                "_airbyte_raw_id" varchar NOT NULL,
+"_airbyte_extracted_at" timestamp with time zone NOT NULL,
+"_airbyte_meta" jsonb NOT NULL,
+"_airbyte_generation_id" bigint NOT NULL,
+"id" bigint,
+"name" varchar,
+"price" bigint,
+"score" bigint,
+"group_id" bigint,
+"_embedded" jsonb,
+"closed_at" bigint,
+"status_id" bigint,
+"account_id" bigint,
+"created_at" bigint,
+"created_by" bigint,
+"is_deleted" boolean,
+"updated_at" bigint,
+"updated_by" bigint,
+"pipeline_id" bigint,
+"loss_reason_id" bigint,
+"closest_task_at" bigint,
+"responsible_user_id" bigint,
+"custom_fields_values" jsonb
+            );
+            COMMIT;
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.c.l.d.DestinationLifecycle$finalizeIndividualStreams$2$1$1(invokeSuspend):93 Finalizing stream null:concepta_custom_fields_leads
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.c.l.t.d.DirectLoadTableDedupTruncateStreamLoader(close):342 Upserting to temp temp table for stream concepta_custom_fields_leads
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(execute):481             BEGIN TRANSACTION;
+            DROP TABLE IF EXISTS "airbyte_raw"."airbyte_rawairbyte_494dfe10e99319e63c95b4a707f49e68150d3d53";
+            CREATE TABLE IF NOT EXISTS "airbyte_raw"."airbyte_rawairbyte_494dfe10e99319e63c95b4a707f49e68150d3d53" (
+                "_airbyte_raw_id" varchar NOT NULL,
+"_airbyte_extracted_at" timestamp with time zone NOT NULL,
+"_airbyte_meta" jsonb NOT NULL,
+"_airbyte_generation_id" bigint NOT NULL,
+"id" bigint,
+"code" varchar,
+"name" varchar,
+"sort" bigint,
+"type" varchar,
+"enums" jsonb,
+"group_id" varchar,
+"account_id" bigint,
+"is_visible" boolean,
+"entity_type" varchar,
+"is_required" boolean,
+"is_deletable" boolean,
+"is_predefined" boolean,
+"required_statuses" jsonb
+            );
+            COMMIT;
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-3 i.a.i.d.p.c.PostgresAirbyteClient(execute):481 CREATE INDEX IF NOT EXISTS "idx_pk_airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017" ON "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017" ("id", "updated_at");
+CREATE INDEX IF NOT EXISTS "idx_cursor_airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017" ON "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017" ("updated_at");
+CREATE INDEX IF NOT EXISTS "idx_extracted_at_airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017" ON "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017" ("_airbyte_extracted_at");
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(execute):481 CREATE INDEX IF NOT EXISTS "idx_pk_airbyte_rawairbyte_494dfe10e99319e63c95b4a707f49e68150d3d53" ON "airbyte_raw"."airbyte_rawairbyte_494dfe10e99319e63c95b4a707f49e68150d3d53" ("id");
+
+CREATE INDEX IF NOT EXISTS "idx_extracted_at_airbyte_rawairbyte_494dfe10e99319e63c95b4a707f49e68150d3d53" ON "airbyte_raw"."airbyte_rawairbyte_494dfe10e99319e63c95b4a707f49e68150d3d53" ("_airbyte_extracted_at");
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(execute):481             WITH deduped_source AS (
+              
+            SELECT "_airbyte_raw_id", "_airbyte_extracted_at", "_airbyte_meta", "_airbyte_generation_id", "id", "code", "name", "sort", "type", "enums", "group_id", "account_id", "is_visible", "entity_type", "is_required", "is_deletable", "is_predefined", "required_statuses"
+            FROM (
+              SELECT *,
+                ROW_NUMBER() OVER (
+                  PARTITION BY "id"
+                  ORDER BY
+                     "_airbyte_extracted_at" DESC
+                ) AS row_number
+              FROM "airbyte_raw"."airbyte_rawconceptads_leads6753702ba992e32183490d79494dfe10"
+            ) AS deduplicated
+            WHERE row_number = 1
+        
+            ),
+
+            
+
+            updates AS (
+              
+             UPDATE "airbyte_raw"."airbyte_rawairbyte_494dfe10e99319e63c95b4a707f49e68150d3d53"
+             SET 
+                "_airbyte_raw_id" = deduped_source."_airbyte_raw_id",
+"_airbyte_extracted_at" = deduped_source."_airbyte_extracted_at",
+"_airbyte_meta" = deduped_source."_airbyte_meta",
+"_airbyte_generation_id" = deduped_source."_airbyte_generation_id",
+"id" = deduped_source."id",
+"code" = deduped_source."code",
+"name" = deduped_source."name",
+"sort" = deduped_source."sort",
+"type" = deduped_source."type",
+"enums" = deduped_source."enums",
+"group_id" = deduped_source."group_id",
+"account_id" = deduped_source."account_id",
+"is_visible" = deduped_source."is_visible",
+"entity_type" = deduped_source."entity_type",
+"is_required" = deduped_source."is_required",
+"is_deletable" = deduped_source."is_deletable",
+"is_predefined" = deduped_source."is_predefined",
+"required_statuses" = deduped_source."required_statuses"
+             FROM deduped_source
+                WHERE "airbyte_raw"."airbyte_rawairbyte_494dfe10e99319e63c95b4a707f49e68150d3d53"."id" = deduped_source."id"
+                    
+                    AND ("airbyte_raw"."airbyte_rawairbyte_494dfe10e99319e63c95b4a707f49e68150d3d53"."_airbyte_extracted_at" < deduped_source."_airbyte_extracted_at")
+        
+            )
+
+            
+            INSERT INTO "airbyte_raw"."airbyte_rawairbyte_494dfe10e99319e63c95b4a707f49e68150d3d53" (
+              "_airbyte_raw_id",
+  "_airbyte_extracted_at",
+  "_airbyte_meta",
+  "_airbyte_generation_id",
+  "id",
+  "code",
+  "name",
+  "sort",
+  "type",
+  "enums",
+  "group_id",
+  "account_id",
+  "is_visible",
+  "entity_type",
+  "is_required",
+  "is_deletable",
+  "is_predefined",
+  "required_statuses"
+            )
+            SELECT
+              "_airbyte_raw_id",
+  "_airbyte_extracted_at",
+  "_airbyte_meta",
+  "_airbyte_generation_id",
+  "id",
+  "code",
+  "name",
+  "sort",
+  "type",
+  "enums",
+  "group_id",
+  "account_id",
+  "is_visible",
+  "entity_type",
+  "is_required",
+  "is_deletable",
+  "is_predefined",
+  "required_statuses"
+            FROM deduped_source
+            WHERE
+              NOT EXISTS (
+                SELECT 1
+                FROM "airbyte_raw"."airbyte_rawairbyte_494dfe10e99319e63c95b4a707f49e68150d3d53"
+                WHERE "airbyte_raw"."airbyte_rawairbyte_494dfe10e99319e63c95b4a707f49e68150d3d53"."id" = deduped_source."id"
+              )
+              
+        
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-3 i.a.i.d.p.c.PostgresAirbyteClient(execute):481             WITH deduped_source AS (
+              
+            SELECT "_airbyte_raw_id", "_airbyte_extracted_at", "_airbyte_meta", "_airbyte_generation_id", "id", "name", "price", "score", "group_id", "_embedded", "closed_at", "status_id", "account_id", "created_at", "created_by", "is_deleted", "updated_at", "updated_by", "pipeline_id", "loss_reason_id", "closest_task_at", "responsible_user_id", "custom_fields_values"
+            FROM (
+              SELECT *,
+                ROW_NUMBER() OVER (
+                  PARTITION BY "id", "updated_at"
+                  ORDER BY
+                    "updated_at" DESC NULLS LAST, "_airbyte_extracted_at" DESC
+                ) AS row_number
+              FROM "airbyte_raw"."airbyte_rawconcepta_leads5db0d7b98c901593d161ae4042fd82f4"
+            ) AS deduplicated
+            WHERE row_number = 1
+        
+            ),
+
+            
+
+            updates AS (
+              
+             UPDATE "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017"
+             SET 
+                "_airbyte_raw_id" = deduped_source."_airbyte_raw_id",
+"_airbyte_extracted_at" = deduped_source."_airbyte_extracted_at",
+"_airbyte_meta" = deduped_source."_airbyte_meta",
+"_airbyte_generation_id" = deduped_source."_airbyte_generation_id",
+"id" = deduped_source."id",
+"name" = deduped_source."name",
+"price" = deduped_source."price",
+"score" = deduped_source."score",
+"group_id" = deduped_source."group_id",
+"_embedded" = deduped_source."_embedded",
+"closed_at" = deduped_source."closed_at",
+"status_id" = deduped_source."status_id",
+"account_id" = deduped_source."account_id",
+"created_at" = deduped_source."created_at",
+"created_by" = deduped_source."created_by",
+"is_deleted" = deduped_source."is_deleted",
+"updated_at" = deduped_source."updated_at",
+"updated_by" = deduped_source."updated_by",
+"pipeline_id" = deduped_source."pipeline_id",
+"loss_reason_id" = deduped_source."loss_reason_id",
+"closest_task_at" = deduped_source."closest_task_at",
+"responsible_user_id" = deduped_source."responsible_user_id",
+"custom_fields_values" = deduped_source."custom_fields_values"
+             FROM deduped_source
+                WHERE "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017"."id" = deduped_source."id" AND "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017"."updated_at" = deduped_source."updated_at"
+                    
+                    AND (
+                  "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017"."updated_at" < deduped_source."updated_at"
+                  OR ("airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017"."updated_at" = deduped_source."updated_at" AND "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017"."_airbyte_extracted_at" < deduped_source."_airbyte_extracted_at")
+                  OR ("airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017"."updated_at" IS NULL AND deduped_source."updated_at" IS NOT NULL)
+                  OR ("airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017"."updated_at" IS NULL AND deduped_source."updated_at" IS NULL AND "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017"."_airbyte_extracted_at" < deduped_source."_airbyte_extracted_at")
+                )
+        
+            )
+
+            
+            INSERT INTO "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017" (
+              "_airbyte_raw_id",
+  "_airbyte_extracted_at",
+  "_airbyte_meta",
+  "_airbyte_generation_id",
+  "id",
+  "name",
+  "price",
+  "score",
+  "group_id",
+  "_embedded",
+  "closed_at",
+  "status_id",
+  "account_id",
+  "created_at",
+  "created_by",
+  "is_deleted",
+  "updated_at",
+  "updated_by",
+  "pipeline_id",
+  "loss_reason_id",
+  "closest_task_at",
+  "responsible_user_id",
+  "custom_fields_values"
+            )
+            SELECT
+              "_airbyte_raw_id",
+  "_airbyte_extracted_at",
+  "_airbyte_meta",
+  "_airbyte_generation_id",
+  "id",
+  "name",
+  "price",
+  "score",
+  "group_id",
+  "_embedded",
+  "closed_at",
+  "status_id",
+  "account_id",
+  "created_at",
+  "created_by",
+  "is_deleted",
+  "updated_at",
+  "updated_by",
+  "pipeline_id",
+  "loss_reason_id",
+  "closest_task_at",
+  "responsible_user_id",
+  "custom_fields_values"
+            FROM deduped_source
+            WHERE
+              NOT EXISTS (
+                SELECT 1
+                FROM "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017"
+                WHERE "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017"."id" = deduped_source."id" AND "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017"."updated_at" = deduped_source."updated_at"
+              )
+              
+        
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(execute):481 BEGIN TRANSACTION;
+DROP TABLE IF EXISTS "airbyte_raw"."concepta_custom_fields_leads";
+ALTER TABLE "airbyte_raw"."airbyte_rawairbyte_494dfe10e99319e63c95b4a707f49e68150d3d53" RENAME TO "concepta_custom_fields_leads";
+COMMIT;
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.c.l.d.DestinationLifecycle$finalizeIndividualStreams$2$1$1(invokeSuspend):97 Finalized stream null:concepta_custom_fields_leads
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.c.l.d.DestinationLifecycle$finalizeIndividualStreams$2$1$1(invokeSuspend):93 Finalizing stream null:concepta_contacts
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT "_airbyte_generation_id" FROM "airbyte_raw"."concepta_contacts" LIMIT 1;
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.c.l.t.d.DirectLoadTableDedupTruncateStreamLoader(close):342 Upserting to temp temp table for stream concepta_contacts
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(execute):481             BEGIN TRANSACTION;
+            DROP TABLE IF EXISTS "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280";
+            CREATE TABLE IF NOT EXISTS "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280" (
+                "_airbyte_raw_id" varchar NOT NULL,
+"_airbyte_extracted_at" timestamp with time zone NOT NULL,
+"_airbyte_meta" jsonb NOT NULL,
+"_airbyte_generation_id" bigint NOT NULL,
+"id" bigint,
+"name" varchar,
+"group_id" bigint,
+"_embedded" jsonb,
+"last_name" varchar,
+"account_id" bigint,
+"created_at" bigint,
+"created_by" bigint,
+"first_name" varchar,
+"is_deleted" boolean,
+"updated_at" bigint,
+"updated_by" bigint,
+"closest_task_at" bigint,
+"responsible_user_id" bigint,
+"custom_fields_values" jsonb
+            );
+            COMMIT;
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(execute):481 CREATE INDEX IF NOT EXISTS "idx_pk_airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280" ON "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280" ("id");
+CREATE INDEX IF NOT EXISTS "idx_cursor_airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280" ON "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280" ("updated_at");
+CREATE INDEX IF NOT EXISTS "idx_extracted_at_airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280" ON "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280" ("_airbyte_extracted_at");
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(execute):481             WITH deduped_source AS (
+              
+            SELECT "_airbyte_raw_id", "_airbyte_extracted_at", "_airbyte_meta", "_airbyte_generation_id", "id", "name", "group_id", "_embedded", "last_name", "account_id", "created_at", "created_by", "first_name", "is_deleted", "updated_at", "updated_by", "closest_task_at", "responsible_user_id", "custom_fields_values"
+            FROM (
+              SELECT *,
+                ROW_NUMBER() OVER (
+                  PARTITION BY "id"
+                  ORDER BY
+                    "updated_at" DESC NULLS LAST, "_airbyte_extracted_at" DESC
+                ) AS row_number
+              FROM "airbyte_raw"."airbyte_rawconceptacontacts123686e55b876c9b5699ef7c76f67e27"
+            ) AS deduplicated
+            WHERE row_number = 1
+        
+            ),
+
+            
+
+            updates AS (
+              
+             UPDATE "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280"
+             SET 
+                "_airbyte_raw_id" = deduped_source."_airbyte_raw_id",
+"_airbyte_extracted_at" = deduped_source."_airbyte_extracted_at",
+"_airbyte_meta" = deduped_source."_airbyte_meta",
+"_airbyte_generation_id" = deduped_source."_airbyte_generation_id",
+"id" = deduped_source."id",
+"name" = deduped_source."name",
+"group_id" = deduped_source."group_id",
+"_embedded" = deduped_source."_embedded",
+"last_name" = deduped_source."last_name",
+"account_id" = deduped_source."account_id",
+"created_at" = deduped_source."created_at",
+"created_by" = deduped_source."created_by",
+"first_name" = deduped_source."first_name",
+"is_deleted" = deduped_source."is_deleted",
+"updated_at" = deduped_source."updated_at",
+"updated_by" = deduped_source."updated_by",
+"closest_task_at" = deduped_source."closest_task_at",
+"responsible_user_id" = deduped_source."responsible_user_id",
+"custom_fields_values" = deduped_source."custom_fields_values"
+             FROM deduped_source
+                WHERE "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280"."id" = deduped_source."id"
+                    
+                    AND (
+                  "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280"."updated_at" < deduped_source."updated_at"
+                  OR ("airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280"."updated_at" = deduped_source."updated_at" AND "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280"."_airbyte_extracted_at" < deduped_source."_airbyte_extracted_at")
+                  OR ("airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280"."updated_at" IS NULL AND deduped_source."updated_at" IS NOT NULL)
+                  OR ("airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280"."updated_at" IS NULL AND deduped_source."updated_at" IS NULL AND "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280"."_airbyte_extracted_at" < deduped_source."_airbyte_extracted_at")
+                )
+        
+            )
+
+            
+            INSERT INTO "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280" (
+              "_airbyte_raw_id",
+  "_airbyte_extracted_at",
+  "_airbyte_meta",
+  "_airbyte_generation_id",
+  "id",
+  "name",
+  "group_id",
+  "_embedded",
+  "last_name",
+  "account_id",
+  "created_at",
+  "created_by",
+  "first_name",
+  "is_deleted",
+  "updated_at",
+  "updated_by",
+  "closest_task_at",
+  "responsible_user_id",
+  "custom_fields_values"
+            )
+            SELECT
+              "_airbyte_raw_id",
+  "_airbyte_extracted_at",
+  "_airbyte_meta",
+  "_airbyte_generation_id",
+  "id",
+  "name",
+  "group_id",
+  "_embedded",
+  "last_name",
+  "account_id",
+  "created_at",
+  "created_by",
+  "first_name",
+  "is_deleted",
+  "updated_at",
+  "updated_by",
+  "closest_task_at",
+  "responsible_user_id",
+  "custom_fields_values"
+            FROM deduped_source
+            WHERE
+              NOT EXISTS (
+                SELECT 1
+                FROM "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280"
+                WHERE "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280"."id" = deduped_source."id"
+              )
+              
+        
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(execute):481 BEGIN TRANSACTION;
+DROP TABLE IF EXISTS "airbyte_raw"."concepta_contacts";
+ALTER TABLE "airbyte_raw"."airbyte_rawairbyte_76f67e275e8f9b60db57729fef5c7e9ac9e09280" RENAME TO "concepta_contacts";
+COMMIT;
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-3 i.a.i.d.p.c.PostgresAirbyteClient(execute):481 BEGIN TRANSACTION;
+DROP TABLE IF EXISTS "airbyte_raw"."concepta_leads";
+ALTER TABLE "airbyte_raw"."airbyte_rawairbyte_42fd82f4ebdd78aefe44e931a00752f953b91017" RENAME TO "concepta_leads";
+COMMIT;
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.c.l.d.DestinationLifecycle$finalizeIndividualStreams$2$1$1(invokeSuspend):97 Finalized stream null:concepta_contacts
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.c.l.d.DestinationLifecycle$finalizeIndividualStreams$2$1$1(invokeSuspend):93 Finalizing stream null:concepta_events
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(executeQuery):517 SELECT "_airbyte_generation_id" FROM "airbyte_raw"."concepta_events" LIMIT 1;
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-3 i.a.c.l.d.DestinationLifecycle$finalizeIndividualStreams$2$1$1(invokeSuspend):97 Finalized stream null:concepta_leads
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.c.l.t.d.DirectLoadTableDedupTruncateStreamLoader(close):342 Upserting to temp temp table for stream concepta_events
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(execute):481             BEGIN TRANSACTION;
+            DROP TABLE IF EXISTS "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0";
+            CREATE TABLE IF NOT EXISTS "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0" (
+                "_airbyte_raw_id" varchar NOT NULL,
+"_airbyte_extracted_at" timestamp with time zone NOT NULL,
+"_airbyte_meta" jsonb NOT NULL,
+"_airbyte_generation_id" bigint NOT NULL,
+"id" varchar,
+"type" varchar,
+"entity_id" bigint,
+"account_id" bigint,
+"created_at" bigint,
+"created_by" bigint,
+"entity_type" varchar,
+"value_after" jsonb,
+"value_before" jsonb
+            );
+            COMMIT;
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(execute):481 CREATE INDEX IF NOT EXISTS "idx_pk_airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0" ON "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0" ("id");
+CREATE INDEX IF NOT EXISTS "idx_cursor_airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0" ON "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0" ("created_at");
+CREATE INDEX IF NOT EXISTS "idx_extracted_at_airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0" ON "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0" ("_airbyte_extracted_at");
+2026-02-24 07:44:47 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(execute):481             WITH deduped_source AS (
+              
+            SELECT "_airbyte_raw_id", "_airbyte_extracted_at", "_airbyte_meta", "_airbyte_generation_id", "id", "type", "entity_id", "account_id", "created_at", "created_by", "entity_type", "value_after", "value_before"
+            FROM (
+              SELECT *,
+                ROW_NUMBER() OVER (
+                  PARTITION BY "id"
+                  ORDER BY
+                    "created_at" DESC NULLS LAST, "_airbyte_extracted_at" DESC
+                ) AS row_number
+              FROM "airbyte_raw"."airbyte_rawconcepta_events1c1264cd4eedc6a45f265de9e31d2c75"
+            ) AS deduplicated
+            WHERE row_number = 1
+        
+            ),
+
+            
+
+            updates AS (
+              
+             UPDATE "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0"
+             SET 
+                "_airbyte_raw_id" = deduped_source."_airbyte_raw_id",
+"_airbyte_extracted_at" = deduped_source."_airbyte_extracted_at",
+"_airbyte_meta" = deduped_source."_airbyte_meta",
+"_airbyte_generation_id" = deduped_source."_airbyte_generation_id",
+"id" = deduped_source."id",
+"type" = deduped_source."type",
+"entity_id" = deduped_source."entity_id",
+"account_id" = deduped_source."account_id",
+"created_at" = deduped_source."created_at",
+"created_by" = deduped_source."created_by",
+"entity_type" = deduped_source."entity_type",
+"value_after" = deduped_source."value_after",
+"value_before" = deduped_source."value_before"
+             FROM deduped_source
+                WHERE "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0"."id" = deduped_source."id"
+                    
+                    AND (
+                  "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0"."created_at" < deduped_source."created_at"
+                  OR ("airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0"."created_at" = deduped_source."created_at" AND "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0"."_airbyte_extracted_at" < deduped_source."_airbyte_extracted_at")
+                  OR ("airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0"."created_at" IS NULL AND deduped_source."created_at" IS NOT NULL)
+                  OR ("airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0"."created_at" IS NULL AND deduped_source."created_at" IS NULL AND "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0"."_airbyte_extracted_at" < deduped_source."_airbyte_extracted_at")
+                )
+        
+            )
+
+            
+            INSERT INTO "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0" (
+              "_airbyte_raw_id",
+  "_airbyte_extracted_at",
+  "_airbyte_meta",
+  "_airbyte_generation_id",
+  "id",
+  "type",
+  "entity_id",
+  "account_id",
+  "created_at",
+  "created_by",
+  "entity_type",
+  "value_after",
+  "value_before"
+            )
+            SELECT
+              "_airbyte_raw_id",
+  "_airbyte_extracted_at",
+  "_airbyte_meta",
+  "_airbyte_generation_id",
+  "id",
+  "type",
+  "entity_id",
+  "account_id",
+  "created_at",
+  "created_by",
+  "entity_type",
+  "value_after",
+  "value_before"
+            FROM deduped_source
+            WHERE
+              NOT EXISTS (
+                SELECT 1
+                FROM "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0"
+                WHERE "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0"."id" = deduped_source."id"
+              )
+              
+        
+2026-02-24 07:44:48 info INFO DefaultDispatcher-worker-6 i.a.i.d.p.c.PostgresAirbyteClient(execute):481 BEGIN TRANSACTION;
+DROP TABLE IF EXISTS "airbyte_raw"."concepta_events";
+ALTER TABLE "airbyte_raw"."airbyte_rawairbyte_e31d2c75ef5cdac8fcd54072cfcdb7924f5073c0" RENAME TO "concepta_events";
+COMMIT;
+2026-02-24 07:44:48 info INFO DefaultDispatcher-worker-6 i.a.c.l.d.DestinationLifecycle$finalizeIndividualStreams$2$1$1(invokeSuspend):97 Finalized stream null:concepta_events
+2026-02-24 07:44:48 info INFO main i.a.c.l.d.DestinationLifecycle$teardownDestination$1(invokeSuspend):108 Tearing down the destination
+2026-02-24 07:44:48 info INFO main i.a.c.l.d.DestinationLifecycle$teardownDestination$1(invokeSuspend):110 Destination torn down
+2026-02-24 07:44:48 info INFO main i.a.i.d.p.c.WriteOperationV2(execute):25 New pipe complete :tada:
+2026-02-24 07:44:48 info INFO main i.a.c.AirbyteConnectorRunnable(run):47 Flushing output consumer prior to shutdown.
+2026-02-24 07:44:48 info INFO main i.a.c.AirbyteConnectorRunnable(run):49 Completed integration: airbyte/destination-postgres.
+2026-02-24 07:44:48 info DestinationReader finished.
+2026-02-24 07:44:48 info Closing StateCheckSumCountEventHandler
+2026-02-24 07:44:48 info No checksum errors were reported in the entire sync.
+2026-02-24 07:44:48 info Sync summary: {
+  "status" : "completed",
+  "recordsSynced" : 9635,
+  "bytesSynced" : 10348229,
+  "startTime" : 1771908259894,
+  "endTime" : 1771908288323,
+  "totalStats" : {
+    "bytesCommitted" : 10348229,
+    "bytesEmitted" : 10348229,
+    "destinationStateMessagesEmitted" : 4,
+    "destinationWriteEndTime" : 1771908288064,
+    "destinationWriteStartTime" : 1771908260231,
+    "meanSecondsBeforeSourceStateMessageEmitted" : 0,
+    "maxSecondsBeforeSourceStateMessageEmitted" : 1,
+    "maxSecondsBetweenStateMessageEmittedandCommitted" : 26,
+    "meanSecondsBetweenStateMessageEmittedandCommitted" : 9,
+    "recordsEmitted" : 9635,
+    "recordsCommitted" : 9635,
+    "recordsFilteredOut" : 0,
+    "bytesFilteredOut" : 0,
+    "replicationEndTime" : 1771908288074,
+    "replicationStartTime" : 1771908259894,
+    "sourceReadEndTime" : 1771908286686,
+    "sourceReadStartTime" : 1771908260230,
+    "sourceStateMessagesEmitted" : 4
+  },
+  "streamStats" : [ {
+    "streamName" : "contacts",
+    "stats" : {
+      "bytesCommitted" : 3155873,
+      "bytesEmitted" : 3155873,
+      "estimatedBytes" : 0,
+      "estimatedRecords" : 0,
+      "recordsEmitted" : 4500,
+      "recordsCommitted" : 4500,
+      "recordsFilteredOut" : 0,
+      "bytesFilteredOut" : 0
+    }
+  }, {
+    "streamName" : "leads",
+    "stats" : {
+      "bytesCommitted" : 7103860,
+      "bytesEmitted" : 7103860,
+      "estimatedBytes" : 0,
+      "estimatedRecords" : 0,
+      "recordsEmitted" : 4750,
+      "recordsCommitted" : 4750,
+      "recordsFilteredOut" : 0,
+      "bytesFilteredOut" : 0
+    }
+  }, {
+    "streamName" : "custom_fields_leads",
+    "stats" : {
+      "bytesCommitted" : 37408,
+      "bytesEmitted" : 37408,
+      "estimatedBytes" : 0,
+      "estimatedRecords" : 0,
+      "recordsEmitted" : 135,
+      "recordsCommitted" : 135,
+      "recordsFilteredOut" : 0,
+      "bytesFilteredOut" : 0
+    }
+  }, {
+    "streamName" : "events",
+    "stats" : {
+      "bytesCommitted" : 51088,
+      "bytesEmitted" : 51088,
+      "estimatedBytes" : 0,
+      "estimatedRecords" : 0,
+      "recordsEmitted" : 250,
+      "recordsCommitted" : 250,
+      "recordsFilteredOut" : 0,
+      "bytesFilteredOut" : 0
+    }
+  } ],
+  "performanceMetrics" : { }
+}
+2026-02-24 07:44:48 info Failures: [ ]
+2026-02-24 07:44:48 info 
+2026-02-24 07:44:48 info Closing io.micronaut.context.propagation.instrument.execution.ContextPropagatingExecutorService@3af207fc
+2026-02-24 07:44:48 info ----- END REPLICATION -----
+2026-02-24 07:44:48 info 
+2026-02-24 07:44:48 info Closing io.micronaut.context.propagation.instrument.execution.ContextPropagatingExecutorService@64918740
+2026-02-24 07:44:48 info Closing io.airbyte.container.orchestrator.worker.io.LocalContainerAirbyteDestination@31dd54e1
+2026-02-24 07:44:48 info Closing io.airbyte.container.orchestrator.worker.io.LocalContainerAirbyteSource@3f727390
+2026-02-24 07:44:48 info Closing io.airbyte.container.orchestrator.worker.RecordSchemaValidator@12d84621
+2026-02-24 07:44:48 info Closing io.airbyte.container.orchestrator.persistence.SyncPersistenceImpl@23e585e4
+2026-02-24 07:44:49 info Returning output...
+2026-02-24 07:44:49 info 
+----- START POST REPLICATION OPERATIONS -----
+
+
+2026-02-24 07:44:49 info No post-replication operation(s) to perform.
+2026-02-24 07:44:49 info 
+----- END POST REPLICATION OPERATIONS -----
+
+
+
+
+

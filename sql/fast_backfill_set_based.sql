@@ -20,8 +20,6 @@ DROP TRIGGER IF EXISTS trg_l2_l3_contacts_sigmasz ON prod_sync.sigmasz_contacts;
 -- -----------------------------------------------------------------------------
 -- ШАГ 1: МИГРАЦИЯ СХЕМЫ L3 (Analytics)
 -- -----------------------------------------------------------------------------
-DROP TABLE IF EXISTS analytics.sigmasz_contacts CASCADE;
-DROP VIEW IF EXISTS analytics.sigmasz_contacts_human CASCADE;
 
 ALTER TABLE analytics.sigmasz_leads ADD COLUMN IF NOT EXISTS contact_id BIGINT;
 ALTER TABLE analytics.sigmasz_leads ADD COLUMN IF NOT EXISTS contact_name TEXT;
