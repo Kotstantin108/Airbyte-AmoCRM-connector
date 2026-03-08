@@ -41,9 +41,9 @@ class Leads(AmoIncrementalStream):
     """Поток сделок (leads) — с историей изменений"""
     name = "leads"
     cursor_field = "updated_at"
-    # Составной ключ: каждое обновление лида (новый updated_at) сохраняется
-    # как отдельная строка. Overlap-дубли дедуплицируются по (id, updated_at).
-    primary_key = [["id"], ["updated_at"]]
+    # Ключ только id (перезаписываем старые версии, чтобы Airbyte dbt
+    # дедуплицировал записи и отдавал БД только последнюю актуальную версию).
+    primary_key = "id"
     
     def path(self, **kwargs) -> str:
         return "leads"

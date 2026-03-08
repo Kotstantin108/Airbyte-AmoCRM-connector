@@ -76,25 +76,27 @@ class AmoStream(HttpStream):
             records = data.get('_embedded', {}).get(self.name, [])
             records_count = len(records)
             logger.info(f"[{self.name}] Got {records_count} records on current page")
-            
-            if records_count < MAX_RECORDS_PER_PAGE:
-                logger.info(
-                    f"[{self.name}] Last page (got {records_count} < {MAX_RECORDS_PER_PAGE})"
-                )
-                return None
                 
         except Exception as e:
             logger.warning(f"[{self.name}] Failed to parse JSON response: {e}")
             return None
 
+        # Проверяем наличие _links.next
+        next_link = data.get('_links', {}).get('next', {}).get('href')
+        if not next_link:
+            logger.info(f"[{self.name}] No _links.next found - last page reached")
+            return None
+
         try:
-            parsed = urlparse(response.request.url)
+            parsed = urlparse(next_link)
             qs = parse_qs(parsed.query)
-            current_list = qs.get('page', ['1'])
-            current = int(current_list[0])
-            next_page = current + 1
-            logger.info(f"[{self.name}] Page {current} done, moving to page {next_page}")
-            return {'page': next_page}
+            if 'page' in qs:
+                next_page = int(qs['page'][0])
+                logger.info(f"[{self.name}] Moving to page {next_page} via _links.next")
+                return {'page': next_page}
+            else:
+                logger.warning(f"[{self.name}] _links.next found but no 'page' param in: {next_link}")
+                return None
         except Exception as e:
             logger.warning(f"Pagination error: {e}. Url: {response.request.url}")
             return None
