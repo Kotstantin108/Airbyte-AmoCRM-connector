@@ -2,7 +2,7 @@
 -- Базовые объекты ДО триггеров (после сноса БД)
 -- ============================================
 -- Запустите первым. Схему airbyte_raw и таблицы в ней создаёт Airbyte при синхронизации.
--- Этот скрипт создаёт: prod_sync, analytics, таблицы L2/L3, normalize_phone(), process_embedded_contacts().
+-- Этот скрипт создаёт: prod_sync, analytics, таблицы L2, normalize_phone(), process_embedded_contacts().
 -- После него: sql/setup_from_scratch_normalized.sql → sql/backfill_initial_normalized.sql
 
 -- =============================================================================
@@ -103,20 +103,3 @@ BEGIN
     END LOOP;
 END;
 $$ LANGUAGE plpgsql;
-
--- =============================================================================
--- 4. L3: таблицы analytics (базовые колонки; f_* добавит sync_schema)
--- =============================================================================
-CREATE TABLE IF NOT EXISTS analytics.sigmasz_leads (
-    lead_id BIGINT PRIMARY KEY,
-    name TEXT,
-    status_id INT,
-    pipeline_id INT,
-    price NUMERIC,
-    created_at TIMESTAMPTZ,
-    updated_at TIMESTAMPTZ,
-    is_deleted BOOLEAN DEFAULT FALSE,
-    _synced_at TIMESTAMPTZ DEFAULT NOW()
-);
-CREATE INDEX IF NOT EXISTS idx_sigmasz_leads_l3_time ON analytics.sigmasz_leads(_synced_at);
-

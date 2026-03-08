@@ -48,37 +48,9 @@ RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER AS $$
 $$;
 
 -- =============================================================================
--- 0.4. l3_batch_watermarks — миграция (только лиды)
+-- 0.4. v_recent_tombstones
 -- =============================================================================
-ALTER TABLE prod_sync.l3_batch_watermarks ADD COLUMN IF NOT EXISTS l2_table_name TEXT, ADD COLUMN IF NOT EXISTS l2_id_col TEXT;
-UPDATE prod_sync.l3_batch_watermarks SET l2_table_name = 'sigmasz_leads', l2_id_col = 'lead_id' WHERE stream_name = 'sigmasz_leads' AND l2_table_name IS NULL;
 
--- =============================================================================
--- 0.5. v_batch_status и v_recent_tombstones
--- =============================================================================
-CREATE OR REPLACE FUNCTION prod_sync.get_batch_pending_rows(p_stream_name TEXT)
-RETURNS BIGINT LANGUAGE plpgsql STABLE AS $$
-DECLARE
-    v_table TEXT; v_id_col TEXT; v_from_ts TIMESTAMPTZ; v_from_id BIGINT; v_count BIGINT;
-BEGIN
-    SELECT l2_table_name, l2_id_col, last_synced_at, last_entity_id INTO v_table, v_id_col, v_from_ts, v_from_id FROM prod_sync.l3_batch_watermarks WHERE stream_name = p_stream_name;
-    IF v_table IS NULL THEN RETURN 0; END IF;
-    EXECUTE format('SELECT COUNT(*) FROM prod_sync.%I WHERE (_synced_at, %I) > ($1, $2) AND _synced_at < NOW() - INTERVAL ''5 seconds''', v_table, v_id_col) INTO v_count USING v_from_ts, v_from_id;
-    RETURN v_count;
-END;
-$$;
-
-DROP VIEW IF EXISTS prod_sync.v_batch_status;
-CREATE OR REPLACE VIEW prod_sync.v_batch_status AS
-SELECT
-    w.stream_name, w.l2_table_name, w.last_synced_at, w.last_entity_id, w.last_run_at, w.rows_processed,
-    prod_sync.get_batch_pending_rows(w.stream_name) AS pending_rows,
-    EXTRACT(EPOCH FROM (NOW() - w.last_run_at)) / 60 AS lag_minutes,
-    (SELECT COUNT(*) FROM airbyte_raw.l2_dead_letter_queue dlq WHERE dlq.stream_name LIKE w.stream_name || '%' AND dlq.resolved = FALSE) AS dlq_unresolved,
-    (SELECT COUNT(*) FROM airbyte_raw.l2_dead_letter_queue dlq WHERE dlq.stream_name LIKE w.stream_name || '%' AND dlq.resolved = FALSE AND dlq.retry_count > 1) AS dlq_quarantined
-FROM prod_sync.l3_batch_watermarks w;
-
-DROP VIEW IF EXISTS prod_sync.v_recent_tombstones;
 CREATE OR REPLACE VIEW prod_sync.v_recent_tombstones AS
 SELECT domain, entity_type, entity_id, deleted_at, _synced_at FROM prod_sync.deleted_entities_log ORDER BY deleted_at DESC LIMIT 100;
 
@@ -130,6 +102,16 @@ BEGIN
     v_lid := NEW.id; IF v_lid IS NULL OR prod_sync.is_tombstoned('sigmasz', 'lead', v_lid) THEN RETURN NEW; END IF;
     IF COALESCE(NEW.is_deleted, FALSE) IS TRUE THEN PERFORM prod_sync.register_tombstone('sigmasz', 'lead', v_lid); UPDATE prod_sync.sigmasz_leads SET is_deleted = TRUE, _synced_at = NOW() WHERE lead_id = v_lid; RETURN NEW; END IF;
     BEGIN IF pg_typeof(NEW.created_at) IN ('bigint'::REGTYPE, 'integer'::REGTYPE) THEN v_cts := prod_sync.safe_cf_to_timestamp(NEW.created_at::TEXT); ELSE v_cts := NEW.created_at::TIMESTAMPTZ; END IF; EXCEPTION WHEN OTHERS THEN v_cts := NULL; END;
+    -- Fallback: если created_at пришёл NULL (incremental update), берём из другой строки L1
+    IF v_cts IS NULL THEN
+        BEGIN
+            SELECT prod_sync.safe_cf_to_timestamp(l.created_at::TEXT) INTO v_cts
+            FROM airbyte_raw.sigmasz_leads l
+            WHERE l.id = v_lid AND l.created_at IS NOT NULL
+            ORDER BY l.created_at ASC LIMIT 1;
+        EXCEPTION WHEN OTHERS THEN NULL;
+        END;
+    END IF;
     BEGIN IF pg_typeof(NEW.updated_at) IN ('bigint'::REGTYPE, 'integer'::REGTYPE) THEN v_uts := prod_sync.safe_cf_to_timestamp(NEW.updated_at::TEXT); ELSE v_uts := NEW.updated_at::TIMESTAMPTZ; END IF; EXCEPTION WHEN OTHERS THEN v_uts := NULL; END;
     BEGIN IF NEW._embedded IS NOT NULL AND BTRIM(NEW._embedded::TEXT) NOT IN ('','null') THEN v_emb := NEW._embedded::JSONB; IF jsonb_typeof(v_emb) <> 'object' THEN v_emb := '{}'; END IF; END IF; EXCEPTION WHEN OTHERS THEN v_emb := '{}'; END;
     BEGIN IF NEW.custom_fields_values IS NOT NULL AND BTRIM(NEW.custom_fields_values::TEXT) NOT IN ('','null') THEN v_cf := NEW.custom_fields_values::JSONB; IF jsonb_typeof(v_cf) <> 'array' THEN v_cf := '[]'; END IF; END IF; EXCEPTION WHEN OTHERS THEN v_cf := '[]'; END;

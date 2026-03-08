@@ -4,7 +4,7 @@
 -- Выполняется после dwh_multidomain_core_part1.sql
 --
 -- Содержит:
---   A. setup_new_domain()          — создаёт L2/L3 таблицы + watermarks
+--   A. setup_new_domain()          — создаёт L2 таблицы
 --   B. setup_new_domain_functions()— создаёт все функции через dynamic SQL
 --   C. attach_domain_triggers()    — привязывает триггеры к airbyte_raw
 --   D. auto_provision_domain()     — event trigger авто-обнаружение
@@ -14,7 +14,7 @@
 BEGIN;
 
 -- =============================================================================
--- A. setup_new_domain (Только L3 leads, без contacts)
+-- A. setup_new_domain (только L2 таблицы)
 -- =============================================================================
 CREATE OR REPLACE FUNCTION prod_sync.setup_new_domain(p_domain TEXT)
 RETURNS TEXT LANGUAGE plpgsql SECURITY DEFINER AS $$
@@ -30,11 +30,7 @@ BEGIN
     EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%1$s_leads_deleted ON prod_sync.%1$I_leads (is_deleted) WHERE is_deleted=TRUE', p_domain);
     EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%1$s_lc_lead ON prod_sync.%1$I_lead_contacts (lead_id)', p_domain);
 
-    EXECUTE format('CREATE TABLE IF NOT EXISTS analytics.%1$I_leads (lead_id BIGINT PRIMARY KEY, name TEXT, status_id INT, pipeline_id INT, price NUMERIC, created_at TIMESTAMPTZ, updated_at TIMESTAMPTZ, is_deleted BOOLEAN DEFAULT FALSE, _synced_at TIMESTAMPTZ DEFAULT NOW(), contact_id BIGINT, contact_name TEXT, contact_phone TEXT, contact_email TEXT)', p_domain);
-    EXECUTE format('CREATE INDEX IF NOT EXISTS idx_%1$s_leads_l3_time ON analytics.%1$I_leads (_synced_at)', p_domain);
-
-    INSERT INTO prod_sync.l3_batch_watermarks (stream_name, l2_table_name, l2_id_col) VALUES (p_domain||'_leads', p_domain||'_leads', 'lead_id') ON CONFLICT DO NOTHING;
-    RETURN format('Domain "%s": L2/L3 tables + watermarks created.', p_domain);
+    RETURN format('Domain "%s": L2 tables created.', p_domain);
 END;
 $$;
 
@@ -83,6 +79,7 @@ BEGIN
         v_lid:=NEW.id; IF v_lid IS NULL OR prod_sync.is_tombstoned(%1$L,'lead',v_lid) THEN RETURN NEW; END IF;
         IF COALESCE(NEW.is_deleted,FALSE) IS TRUE THEN PERFORM prod_sync.register_tombstone(%1$L,'lead',v_lid); UPDATE prod_sync.%1$I_leads SET is_deleted=TRUE,_synced_at=NOW() WHERE lead_id=v_lid; RETURN NEW; END IF;
         BEGIN IF pg_typeof(NEW.created_at) IN('bigint'::REGTYPE,'integer'::REGTYPE) THEN v_cts:=prod_sync.safe_cf_to_timestamp(NEW.created_at::TEXT); ELSE v_cts:=NEW.created_at::TIMESTAMPTZ; END IF; EXCEPTION WHEN OTHERS THEN v_cts:=NULL; END;
+        IF v_cts IS NULL THEN BEGIN EXECUTE format('SELECT prod_sync.safe_cf_to_timestamp(l.created_at::TEXT) FROM airbyte_raw.%1$I_leads l WHERE l.id = $1 AND l.created_at IS NOT NULL ORDER BY l.created_at ASC LIMIT 1') INTO v_cts USING v_lid; EXCEPTION WHEN OTHERS THEN NULL; END; END IF;
         BEGIN IF pg_typeof(NEW.updated_at) IN('bigint'::REGTYPE,'integer'::REGTYPE) THEN v_uts:=prod_sync.safe_cf_to_timestamp(NEW.updated_at::TEXT); ELSE v_uts:=NEW.updated_at::TIMESTAMPTZ; END IF; EXCEPTION WHEN OTHERS THEN v_uts:=NULL; END;
         BEGIN IF NEW._embedded IS NOT NULL AND BTRIM(NEW._embedded::TEXT) NOT IN('','null') THEN v_emb:=NEW._embedded::JSONB; IF jsonb_typeof(v_emb)<>'object' THEN v_emb:='{}'; END IF; END IF; EXCEPTION WHEN OTHERS THEN v_emb:='{}'; END;
         BEGIN IF NEW.custom_fields_values IS NOT NULL AND BTRIM(NEW.custom_fields_values::TEXT) NOT IN('','null') THEN v_cf:=NEW.custom_fields_values::JSONB; IF jsonb_typeof(v_cf)<>'array' THEN v_cf:='[]'; END IF; END IF; EXCEPTION WHEN OTHERS THEN v_cf:='[]'; END;
@@ -112,52 +109,6 @@ BEGIN
         RETURN NEW;
     EXCEPTION WHEN invalid_text_representation OR numeric_value_out_of_range OR invalid_parameter_value OR data_exception THEN
         BEGIN INSERT INTO airbyte_raw.l2_dead_letter_queue(stream_name,entity_id,raw_record,error_message,sqlstate) VALUES(%1$L||'_contacts',v_cid,to_jsonb(NEW),SQLERRM,SQLSTATE); EXCEPTION WHEN OTHERS THEN NULL; END; RETURN NEW;
-    END; $f$
-    $func$, p_domain);
-
-    -- ИСПРАВЛЕНИЕ: КОРРЕКТНЫЙ FORMAT() С 4 АРГУМЕНТАМИ ВМЕСТО %%s
-    EXECUTE format($func$
-    CREATE OR REPLACE FUNCTION prod_sync.propagate_one_lead_to_l3_%1$s(p_lead_id BIGINT, p_cols TEXT[] DEFAULT NULL, p_insert_cols TEXT DEFAULT NULL, p_set_clause TEXT DEFAULT NULL) RETURNS VOID LANGUAGE plpgsql AS $f$
-    DECLARE r prod_sync.%1$I_leads%%ROWTYPE; v_fj JSONB; v_filtered JSONB; v_sql TEXT; v_cols TEXT[]; v_ic TEXT; v_sc TEXT; v_cid BIGINT; v_cn TEXT; v_cp TEXT; v_ce TEXT;
-    BEGIN
-        SELECT * INTO r FROM prod_sync.%1$I_leads WHERE lead_id=p_lead_id; IF NOT FOUND THEN RETURN; END IF;
-        IF COALESCE(r.is_deleted,FALSE) IS TRUE THEN DELETE FROM analytics.%1$I_leads WHERE lead_id=p_lead_id; RETURN; END IF;
-        SELECT c_id,c_name,c_phone,c_email INTO v_cid,v_cn,v_cp,v_ce FROM prod_sync.get_best_contact_for_lead_%1$s(p_lead_id);
-        SELECT jsonb_object_agg('f_'||COALESCE(e.value->>'field_id',e.value->>'id'), CASE WHEN cf.type IN('date','date_time','birthday') THEN CASE WHEN (e.value->'values'->0->>'value')~'^\d+$' THEN to_jsonb(prod_sync.safe_cf_to_timestamp(e.value->'values'->0->>'value')) WHEN (e.value->'values'->0->>'value')~'^\d{2}\.\d{2}\.\d{4}$' THEN to_jsonb(to_timestamp(e.value->'values'->0->>'value','DD.MM.YYYY')::TIMESTAMPTZ) ELSE to_jsonb(NULL::TIMESTAMPTZ) END ELSE CASE WHEN jsonb_typeof(e.value->'values')='array' THEN e.value->'values'->0->'value' ELSE NULL END END) INTO v_fj FROM jsonb_array_elements(COALESCE(r.raw_json->'custom_fields_values','[]'::JSONB)) e(value) LEFT JOIN airbyte_raw.%1$I_custom_fields_leads cf ON cf.id::TEXT=COALESCE(e.value->>'field_id',e.value->>'id') WHERE COALESCE(e.value->>'field_id',e.value->>'id') IS NOT NULL;
-        IF v_fj IS NULL THEN v_fj:='{}'; END IF;
-        v_fj:=v_fj||jsonb_build_object('lead_id',r.lead_id,'name',r.name,'status_id',r.status_id,'pipeline_id',r.pipeline_id,'price',r.price,'created_at',r.created_at,'updated_at',r.updated_at,'is_deleted',r.is_deleted,'_synced_at',NOW(),'contact_id',v_cid,'contact_name',v_cn,'contact_phone',v_cp,'contact_email',v_ce);
-        IF p_cols IS NOT NULL THEN v_cols:=p_cols; v_ic:=p_insert_cols; v_sc:=p_set_clause; ELSE
-            SELECT array_agg(a.attname::TEXT ORDER BY a.attnum) INTO v_cols FROM pg_catalog.pg_attribute a JOIN pg_catalog.pg_class c ON c.oid=a.attrelid JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='analytics' AND c.relname=%1$L||'_leads' AND a.attnum>0 AND NOT a.attisdropped;
-            SELECT string_agg(format('%%I',col),', ') INTO v_ic FROM unnest(v_cols) col; SELECT string_agg(format('%%I=EXCLUDED.%%I',col,col),', ') INTO v_sc FROM unnest(v_cols) col WHERE col<>'lead_id';
-        END IF;
-        IF v_sc IS NULL OR v_sc NOT LIKE '%%_synced_at%%' THEN v_sc:=COALESCE(v_sc||', ','')||'_synced_at=NOW()'; END IF;
-        SELECT jsonb_object_agg(key,value) INTO v_filtered FROM jsonb_each(v_fj) WHERE key=ANY(v_cols);
-        
-        -- СБОРКА SQL ЧЕРЕЗ FORMAT() НА ЛЕТУ
-        v_sql := format(
-            'INSERT INTO analytics.%1$I_leads (%%s) SELECT * FROM jsonb_populate_record(NULL::analytics.%1$I_leads, $1) ON CONFLICT(lead_id) DO UPDATE SET %%s',
-            v_ic, v_sc
-        );
-        EXECUTE v_sql USING COALESCE(v_filtered,'{}');
-    END; $f$
-    $func$, p_domain);
-
-    EXECUTE format($func$
-    CREATE OR REPLACE FUNCTION prod_sync.run_l3_batch_leads_%1$s(p_batch_size INT DEFAULT 1000, p_max_retries INT DEFAULT 0) RETURNS TABLE(processed_count INT,failed_count INT,skipped_count INT,last_watermark TIMESTAMPTZ,has_more BOOLEAN) LANGUAGE plpgsql AS $f$
-    DECLARE v_fts TIMESTAMPTZ; v_fid BIGINT; v_tts TIMESTAMPTZ; v_lid BIGINT; v_lsa TIMESTAMPTZ; v_mts TIMESTAMPTZ; v_mid BIGINT; v_cnt INT:=0; v_fc INT:=0; v_sc INT:=0; v_er INT; v_cols TEXT[]; v_ic TEXT; v_setc TEXT;
-    BEGIN
-        SET LOCAL lock_timeout='5s'; SELECT wm.last_synced_at,wm.last_entity_id INTO v_fts,v_fid FROM prod_sync.l3_batch_watermarks wm WHERE wm.stream_name=%1$L||'_leads' FOR UPDATE;
-        v_tts:=NOW()-INTERVAL'5 seconds'; v_mts:=v_fts; v_mid:=v_fid;
-        SELECT array_agg(a.attname::TEXT ORDER BY a.attnum) INTO v_cols FROM pg_catalog.pg_attribute a JOIN pg_catalog.pg_class c ON c.oid=a.attrelid JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='analytics' AND c.relname=%1$L||'_leads' AND a.attnum>0 AND NOT a.attisdropped;
-        SELECT string_agg(format('%%I',col),', ') INTO v_ic FROM unnest(v_cols) col; SELECT string_agg(format('%%I=EXCLUDED.%%I',col,col),', ') INTO v_setc FROM unnest(v_cols) col WHERE col<>'lead_id';
-        IF v_setc IS NULL OR v_setc NOT LIKE '%%_synced_at%%' THEN v_setc:=COALESCE(v_setc||', ','')||'_synced_at=NOW()'; END IF;
-        FOR v_lid,v_lsa IN SELECT lead_id,_synced_at FROM prod_sync.%1$I_leads WHERE (_synced_at,lead_id)>(v_fts,v_fid) AND _synced_at<v_tts ORDER BY _synced_at,lead_id LIMIT p_batch_size LOOP BEGIN
-            PERFORM prod_sync.propagate_one_lead_to_l3_%1$s(v_lid,v_cols,v_ic,v_setc); v_mts:=v_lsa; v_mid:=v_lid; v_cnt:=v_cnt+1;
-        EXCEPTION WHEN OTHERS THEN
-            v_fc:=v_fc+1; INSERT INTO airbyte_raw.l2_dead_letter_queue(stream_name,entity_id,error_message,sqlstate,retry_count) VALUES(%1$L||'_leads_l3',v_lid,SQLERRM,SQLSTATE,0) ON CONFLICT DO NOTHING; UPDATE airbyte_raw.l2_dead_letter_queue SET retry_count=retry_count+1,error_message=SQLERRM,failed_at=NOW() WHERE stream_name=%1$L||'_leads_l3' AND entity_id=v_lid AND resolved=FALSE; SELECT retry_count INTO v_er FROM airbyte_raw.l2_dead_letter_queue WHERE stream_name=%1$L||'_leads_l3' AND entity_id=v_lid AND resolved=FALSE;
-            IF p_max_retries>0 AND v_er>=p_max_retries THEN v_mts:=v_lsa; v_mid:=v_lid; v_sc:=v_sc+1; ELSE EXIT; END IF; END; END LOOP;
-        IF v_mts>v_fts OR (v_mts=v_fts AND v_mid>v_fid) THEN UPDATE prod_sync.l3_batch_watermarks SET last_synced_at=v_mts,last_entity_id=v_mid, last_run_at=NOW(),rows_processed=rows_processed+v_cnt WHERE stream_name=%1$L||'_leads'; ELSE UPDATE prod_sync.l3_batch_watermarks SET last_run_at=NOW() WHERE stream_name=%1$L||'_leads'; END IF;
-        RETURN QUERY SELECT v_cnt,v_fc,v_sc,v_mts,(v_cnt=p_batch_size AND v_fc=0);
     END; $f$
     $func$, p_domain);
 

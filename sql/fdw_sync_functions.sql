@@ -162,6 +162,7 @@ BEGIN
         SELECT lead_id, name, status_id, pipeline_id, price, created_at, updated_at, raw_json FROM _changed_leads
         ON CONFLICT (lead_id) DO UPDATE SET
             name = EXCLUDED.name, status_id = EXCLUDED.status_id, pipeline_id = EXCLUDED.pipeline_id, price = EXCLUDED.price,
+            created_at = COALESCE(EXCLUDED.created_at, amo_support_schema.sigmasz_leads.created_at),
             updated_at = EXCLUDED.updated_at, raw_json = EXCLUDED.raw_json
         WHERE EXCLUDED.updated_at >= amo_support_schema.sigmasz_leads.updated_at
         RETURNING (xmax = 0) AS is_new
