@@ -43,6 +43,7 @@ BEGIN
     EXECUTE format($func$
     CREATE OR REPLACE FUNCTION airbyte_raw.propagate_deleted_to_l2_%1$s() RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $f$
     BEGIN
+        PERFORM pg_advisory_xact_lock(hashtext('amo_sync_lock_%1$s'));
         IF NEW.type='lead_deleted' AND NEW.entity_type='lead' THEN PERFORM prod_sync.register_tombstone(%1$L,'lead',NEW.entity_id); UPDATE prod_sync.%1$I_leads SET is_deleted=TRUE,_synced_at=NOW() WHERE lead_id=NEW.entity_id; END IF;
         IF NEW.type='contact_deleted' AND NEW.entity_type='contact' THEN PERFORM prod_sync.register_tombstone(%1$L,'contact',NEW.entity_id); UPDATE prod_sync.%1$I_contacts SET is_deleted=TRUE,_synced_at=NOW() WHERE contact_id=NEW.entity_id; END IF;
         RETURN NEW;
@@ -76,6 +77,7 @@ BEGIN
     CREATE OR REPLACE FUNCTION airbyte_raw.unpack_%1$s_leads_l2() RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path=airbyte_raw,prod_sync,public AS $f$
     DECLARE v_lid BIGINT; v_cts TIMESTAMPTZ; v_uts TIMESTAMPTZ; v_emb JSONB:='{}'; v_cf JSONB:='[]'; v_rj JSONB; v_ec JSONB;
     BEGIN
+        PERFORM pg_advisory_xact_lock(hashtext('amo_sync_lock_%1$s'));
         v_lid:=NEW.id; IF v_lid IS NULL OR prod_sync.is_tombstoned(%1$L,'lead',v_lid) THEN RETURN NEW; END IF;
         IF COALESCE(NEW.is_deleted,FALSE) IS TRUE THEN PERFORM prod_sync.register_tombstone(%1$L,'lead',v_lid); UPDATE prod_sync.%1$I_leads SET is_deleted=TRUE,_synced_at=NOW() WHERE lead_id=v_lid; RETURN NEW; END IF;
         BEGIN IF pg_typeof(NEW.created_at) IN('bigint'::REGTYPE,'integer'::REGTYPE) THEN v_cts:=prod_sync.safe_cf_to_timestamp(NEW.created_at::TEXT); ELSE v_cts:=NEW.created_at::TIMESTAMPTZ; END IF; EXCEPTION WHEN OTHERS THEN v_cts:=NULL; END;
@@ -96,6 +98,7 @@ BEGIN
     CREATE OR REPLACE FUNCTION airbyte_raw.unpack_%1$s_contacts_l2() RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path=airbyte_raw,prod_sync,public AS $f$
     DECLARE v_cid BIGINT; v_uts TIMESTAMPTZ; v_cf JSONB:='[]'; v_rj JSONB; v_ph TEXT; v_em TEXT;
     BEGIN
+        PERFORM pg_advisory_xact_lock(hashtext('amo_sync_lock_%1$s'));
         v_cid:=NEW.id; IF v_cid IS NULL OR prod_sync.is_tombstoned(%1$L,'contact',v_cid) THEN RETURN NEW; END IF;
         IF COALESCE(NEW.is_deleted,FALSE) IS TRUE THEN PERFORM prod_sync.register_tombstone(%1$L,'contact',v_cid); UPDATE prod_sync.%1$I_contacts SET is_deleted=TRUE,_synced_at=NOW() WHERE contact_id=v_cid; RETURN NEW; END IF;
         BEGIN IF pg_typeof(NEW.updated_at) IN('bigint'::REGTYPE,'integer'::REGTYPE) THEN v_uts:=prod_sync.safe_cf_to_timestamp(NEW.updated_at::TEXT); ELSE v_uts:=NEW.updated_at::TIMESTAMPTZ; END IF; EXCEPTION WHEN OTHERS THEN v_uts:=NULL; END;

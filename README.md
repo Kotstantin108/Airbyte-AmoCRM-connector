@@ -100,6 +100,41 @@ SELECT * FROM airbyte_raw.process_all_deleted_events();
 - **Пагинация**: максимум 250 записей на страницу (лимит AmoCRM API)
 - **Обработка ошибок**: retry для 429 (rate limit) и 5xx ошибок
 
+## 🔍 Анализ синхронизации L2 → Production
+
+**Проведён глубокий анализ всей цепочки синхронизации данных.**
+
+Выявлены **4 КРИТИЧЕСКИЕ проблемы** и **8 рисков среднего уровня**:
+
+### 🔴 Критичные:
+1. **Несоответствие доменов** (concepta/entrum vs sigmasz) — таблицы не созданы на Production
+2. **Недостаточная проверка при Ghost Busting** — может удалить 99% данных
+3. **Отсутствие PRIMARY KEY на Production** — синхронизация падает
+4. **Clock Skew между L2 и Production** — пропуск данных в "мертвой зоне"
+
+### 📋 Файлы анализа:
+- [`SYNCHRONIZATION_ANALYSIS_AND_ISSUES.md`](./SYNCHRONIZATION_ANALYSIS_AND_ISSUES.md) — полный анализ всех 12 проблем
+- [`CRITICAL_FIXES.sql`](./sql/CRITICAL_FIXES.sql) — готовые SQL-скрипты для исправлений
+- [`MONITORING_AND_ALERTS.sql`](./sql/MONITORING_AND_ALERTS.sql) — дашборды и мониторинг
+- [`SYNCHRONIZATION_ANALYSIS_SUMMARY.md`](./SYNCHRONIZATION_ANALYSIS_SUMMARY.md) — краткое резюме
+
+### ⚡ Срочные действия:
+```sql
+-- 1. Проверить наличие таблиц на Production
+\dt amo_support_schema.concepta_*
+
+-- 2. Выполнить исправления
+\i sql/CRITICAL_FIXES.sql
+
+-- 3. Настроить мониторинг
+\i sql/MONITORING_AND_ALERTS.sql
+
+-- 4. Проверить здоровье синхронизации
+SELECT * FROM amo_support_schema.check_sync_health();
+```
+
+---
+
 ## Разработка
 
 Для локальной разработки:

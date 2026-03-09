@@ -11,12 +11,16 @@
 | Шаг | Скрипт | Что делает |
 |-----|--------|------------|
 | **1** | **`sql/00_bootstrap_schemas_and_tables.sql`** | Создаёт схемы `prod_sync`, `analytics`; таблицы L2 и L3; функции `normalize_phone()`, `process_embedded_contacts()`. |
-| **2** | **`sql/setup_from_scratch_normalized.sql`** | Создаёт все триггеры L1→L2 и L2→L3, все функции, view. |
-| **3** | **`sql/backfill_initial_normalized.sql`** | Переносит уже существующие данные из L1 в L2 и L3. |
+| **2** | **`sql/dwh_multidomain_core_part1.sql`** | Создаёт многодоменную инфраструктуру: расширяет `deleted_entities_log` с колонкой `domain`, переопределяет функции `register_tombstone(domain, entity_type, entity_id)` и `is_tombstoned(domain, entity_type, entity_id)`. |
+| **3** | **`sql/dwh_multidomain_core_part2.sql`** | Генераторы и авто-обнаружение для новых доменов. |
+| **4** | **`sql/dwh_sync_l1_l2_l3.sql`** | Создаёт все триггеры L1→L2 и L2→L3, вспомогательные функции. Использует функции из части 1. |
+| **5** | **`sql/backfill_initial_normalized.sql`** | Переносит уже существующие данные из L1 в L2 и L3. |
 
 ```bash
 psql -f sql/00_bootstrap_schemas_and_tables.sql
-psql -f sql/setup_from_scratch_normalized.sql
+psql -f sql/dwh_multidomain_core_part1.sql
+psql -f sql/dwh_multidomain_core_part2.sql
+psql -f sql/dwh_sync_l1_l2_l3.sql
 psql -f sql/backfill_initial_normalized.sql
 ```
 

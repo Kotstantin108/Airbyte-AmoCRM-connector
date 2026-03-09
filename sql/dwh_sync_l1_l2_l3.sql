@@ -87,41 +87,27 @@ COMMENT ON TABLE airbyte_raw.l2_dead_letter_queue IS
 -- BLOCK 1: TOMBSTONE SHIELD — HELPER FUNCTIONS
 -- =============================================================================
 
-CREATE OR REPLACE FUNCTION prod_sync.register_tombstone(
-    p_entity_type TEXT,
-    p_entity_id   BIGINT
-)
-RETURNS VOID
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-BEGIN
-    INSERT INTO prod_sync.deleted_entities_log
-        (entity_type, entity_id, deleted_at, _synced_at)
-    VALUES
-        (p_entity_type, p_entity_id, NOW(), NOW())
-    ON CONFLICT (entity_type, entity_id) DO UPDATE
-        SET deleted_at = NOW(),
-            _synced_at = NOW();
-END;
-$$;
+-- NOTE: register_tombstone signature with domain parameter is defined in dwh_multidomain_core_part1.sql
+-- This file should be executed AFTER dwh_multidomain_core_part1.sql
+-- Keeping only the documentation here to avoid redefining the function
+-- 
+-- CREATE OR REPLACE FUNCTION prod_sync.register_tombstone(
+--     p_domain TEXT,
+--     p_entity_type TEXT,
+--     p_entity_id BIGINT
+-- )
+-- See dwh_multidomain_core_part1.sql for implementation
 
-CREATE OR REPLACE FUNCTION prod_sync.is_tombstoned(
-    p_entity_type TEXT,
-    p_entity_id   BIGINT
-)
-RETURNS BOOLEAN
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-AS $$
-    SELECT EXISTS (
-        SELECT 1
-        FROM   prod_sync.deleted_entities_log
-        WHERE  entity_type = p_entity_type
-          AND  entity_id   = p_entity_id
-    );
-$$;
+-- NOTE: is_tombstoned signature with domain parameter is defined in dwh_multidomain_core_part1.sql
+-- This file should be executed AFTER dwh_multidomain_core_part1.sql
+-- Keeping only the documentation here to avoid redefining the function
+--
+-- CREATE OR REPLACE FUNCTION prod_sync.is_tombstoned(
+--     p_domain TEXT,
+--     p_entity_type TEXT,
+--     p_entity_id BIGINT
+-- )
+-- See dwh_multidomain_core_part1.sql for implementation
 
 -- =============================================================================
 -- BLOCK 2: UTILITY FUNCTIONS
@@ -179,7 +165,7 @@ BEGIN
     INNER JOIN prod_sync.sigmasz_contacts c ON c.contact_id = lc.contact_id
     WHERE  lc.lead_id = p_lead_id
       AND  COALESCE(c.is_deleted, FALSE) IS FALSE
-      AND  NOT prod_sync.is_tombstoned('contact', c.contact_id)
+      AND  NOT prod_sync.is_tombstoned('sigmasz', 'contact', c.contact_id)
     ORDER BY COALESCE(lc.is_main, FALSE) DESC, c.contact_id ASC
     LIMIT 1;
 END;
@@ -196,13 +182,16 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 BEGIN
+    PERFORM pg_advisory_xact_lock(hashtext('amo_sync_lock_sigmasz'));
     IF NEW.type = 'lead_deleted' AND NEW.entity_type = 'lead' THEN
         PERFORM prod_sync.register_tombstone('lead', NEW.entity_id);
         UPDATE prod_sync.sigmasz_leads SET is_deleted = TRUE, _synced_at = NOW() WHERE lead_id = NEW.entity_id;
+        UPDATE airbyte_raw.sigmasz_leads SET is_deleted = TRUE WHERE id = NEW.entity_id AND (is_deleted IS NULL OR is_deleted = FALSE);
     END IF;
     IF NEW.type = 'contact_deleted' AND NEW.entity_type = 'contact' THEN
         PERFORM prod_sync.register_tombstone('contact', NEW.entity_id);
         UPDATE prod_sync.sigmasz_contacts SET is_deleted = TRUE, _synced_at = NOW() WHERE contact_id = NEW.entity_id;
+        UPDATE airbyte_raw.sigmasz_contacts SET is_deleted = TRUE WHERE id = NEW.entity_id AND (is_deleted IS NULL OR is_deleted = FALSE);
     END IF;
     RETURN NEW;
 EXCEPTION WHEN OTHERS THEN
@@ -226,16 +215,21 @@ DECLARE
     v_raw_json           JSONB;
     v_embedded_contacts  JSONB;
 BEGIN
+    PERFORM pg_advisory_xact_lock(hashtext('amo_sync_lock_sigmasz'));
     v_lead_id := NEW.id;
     IF v_lead_id IS NULL THEN RETURN NEW; END IF;
 
-    IF prod_sync.is_tombstoned('lead', v_lead_id) THEN RETURN NEW; END IF;
+    IF prod_sync.is_tombstoned('sigmasz', 'lead', v_lead_id) THEN RETURN NEW; END IF;
 
     IF COALESCE(NEW.is_deleted, FALSE) IS TRUE THEN
-        PERFORM prod_sync.register_tombstone('lead', v_lead_id);
-        UPDATE prod_sync.sigmasz_leads SET is_deleted = TRUE, _synced_at = NOW() WHERE lead_id = v_lead_id;
+        PERFORM prod_sync.register_tombstone('sigmasz', 'lead', v_lead_id);
+        DELETE FROM prod_sync.sigmasz_lead_contacts WHERE lead_id = v_lead_id;
+        DELETE FROM prod_sync.sigmasz_leads WHERE lead_id = v_lead_id;
         RETURN NEW;
     END IF;
+
+    -- Check again before INSERT/UPDATE to prevent ghost entities from race condition
+    IF prod_sync.is_tombstoned('sigmasz', 'lead', v_lead_id) THEN RETURN NEW; END IF;
 
     BEGIN
         IF pg_typeof(NEW.created_at) IN ('bigint'::REGTYPE, 'integer'::REGTYPE) THEN
@@ -295,7 +289,11 @@ BEGIN
         created_at  = COALESCE(GREATEST(EXCLUDED.created_at, sigmasz_leads.created_at), EXCLUDED.created_at, sigmasz_leads.created_at),
         updated_at  = COALESCE(GREATEST(EXCLUDED.updated_at, sigmasz_leads.updated_at), EXCLUDED.updated_at, sigmasz_leads.updated_at),
         raw_json    = EXCLUDED.raw_json,
-        is_deleted  = FALSE,
+        -- Don't update is_deleted if record is tombstoned - preserve the deletion mark
+        is_deleted  = CASE WHEN prod_sync.is_tombstoned('sigmasz', 'lead', sigmasz_leads.lead_id) 
+                            THEN sigmasz_leads.is_deleted 
+                            ELSE FALSE 
+                      END,
         _synced_at  = NOW();
 
     v_embedded_contacts := v_embedded_safe -> 'contacts';
@@ -335,16 +333,23 @@ DECLARE
     v_phone              TEXT;
     v_email              TEXT;
 BEGIN
+    PERFORM pg_advisory_xact_lock(hashtext('amo_sync_lock_sigmasz'));
     v_contact_id := NEW.id;
     IF v_contact_id IS NULL THEN RETURN NEW; END IF;
 
-    IF prod_sync.is_tombstoned('contact', v_contact_id) THEN RETURN NEW; END IF;
+    IF prod_sync.is_tombstoned('sigmasz', 'contact', v_contact_id) THEN RETURN NEW; END IF;
 
     IF COALESCE(NEW.is_deleted, FALSE) IS TRUE THEN
-        PERFORM prod_sync.register_tombstone('contact', v_contact_id);
-        UPDATE prod_sync.sigmasz_contacts SET is_deleted = TRUE, _synced_at = NOW() WHERE contact_id = v_contact_id;
+        PERFORM prod_sync.register_tombstone('sigmasz', 'contact', v_contact_id);
+        DELETE FROM prod_sync.sigmasz_contact_phones WHERE contact_id = v_contact_id;
+        DELETE FROM prod_sync.sigmasz_contact_emails WHERE contact_id = v_contact_id;
+        DELETE FROM prod_sync.sigmasz_lead_contacts WHERE contact_id = v_contact_id;
+        DELETE FROM prod_sync.sigmasz_contacts WHERE contact_id = v_contact_id;
         RETURN NEW;
     END IF;
+
+    -- Check again before INSERT/UPDATE to prevent ghost entities from race condition
+    IF prod_sync.is_tombstoned('sigmasz', 'contact', v_contact_id) THEN RETURN NEW; END IF;
 
     BEGIN
         IF pg_typeof(NEW.updated_at) IN ('bigint'::REGTYPE, 'integer'::REGTYPE) THEN
@@ -373,7 +378,11 @@ BEGIN
         name       = EXCLUDED.name,
         updated_at = COALESCE(GREATEST(EXCLUDED.updated_at, sigmasz_contacts.updated_at), EXCLUDED.updated_at, sigmasz_contacts.updated_at),
         raw_json   = EXCLUDED.raw_json,
-        is_deleted = FALSE,
+        -- Don't update is_deleted if record is tombstoned - preserve the deletion mark
+        is_deleted = CASE WHEN prod_sync.is_tombstoned('sigmasz', 'contact', sigmasz_contacts.contact_id)
+                            THEN sigmasz_contacts.is_deleted
+                            ELSE FALSE
+                      END,
         _synced_at = NOW();
 
     -- FIX: Не стираем телефоны/email, если custom_fields_values не пришли (partial update)
@@ -444,7 +453,7 @@ BEGIN
             v_contact_id := NULLIF(BTRIM(COALESCE(v_contact ->> 'id', '')), '')::BIGINT;
         EXCEPTION WHEN OTHERS THEN CONTINUE; END;
         IF v_contact_id IS NULL THEN CONTINUE; END IF;
-        IF prod_sync.is_tombstoned('contact', v_contact_id) THEN CONTINUE; END IF;
+        IF prod_sync.is_tombstoned('sigmasz', 'contact', v_contact_id) THEN CONTINUE; END IF;
 
         v_updated_ts := prod_sync.safe_cf_to_timestamp(NULLIF(BTRIM(COALESCE(v_contact ->> 'updated_at', '')), ''));
         v_is_main := COALESCE((v_contact ->> 'is_main')::BOOLEAN, FALSE);
@@ -514,22 +523,3 @@ CREATE INDEX IF NOT EXISTS idx_sigmasz_contacts_is_deleted ON prod_sync.sigmasz_
 CREATE INDEX IF NOT EXISTS idx_sigmasz_lead_contacts_lead_id ON prod_sync.sigmasz_lead_contacts (lead_id);
 CREATE INDEX IF NOT EXISTS idx_dlq_failed_at_unresolved ON airbyte_raw.l2_dead_letter_queue (failed_at DESC) WHERE resolved = FALSE;
 
--- =============================================================================
--- BLOCK 7: ВСПОМОГАТЕЛЬНЫЕ VIEW ДЛЯ МОНИТОРИНГА
--- =============================================================================
-
-CREATE OR REPLACE VIEW airbyte_raw.v_dlq_summary AS
-SELECT
-    stream_name,
-    COUNT(*) AS total_errors,
-    COUNT(*) FILTER (WHERE NOT resolved) AS unresolved,
-    MIN(failed_at) AS oldest_error,
-    MAX(failed_at) AS latest_error
-FROM airbyte_raw.l2_dead_letter_queue
-GROUP BY stream_name;
-
-DROP VIEW IF EXISTS prod_sync.v_recent_tombstones CASCADE;
-CREATE OR REPLACE VIEW prod_sync.v_recent_tombstones AS
-SELECT domain, entity_type, entity_id, deleted_at, _synced_at
-FROM prod_sync.deleted_entities_log
-ORDER BY deleted_at DESC LIMIT 100;
