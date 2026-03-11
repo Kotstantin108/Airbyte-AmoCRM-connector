@@ -2,28 +2,53 @@
 
 Python CDK коннектор для синхронизации данных из AmoCRM в PostgreSQL через Airbyte.
 
+## Архитектура (активная)
+
+```
+AmoCRM API
+    │
+    ▼  (HTTP REST, OAuth2 token из PG)
+Custom Python Connector (Docker в Airbyte)
+    │
+    ▼  (Airbyte sync job → записывает в PG)
+airbyte_raw (L1) — сырые данные (sigmasz / concepta / entrum)
+    │
+    ▼  (PostgreSQL AFTER INSERT/UPDATE триггеры — мгновенно)
+prod_sync (L2) — нормализованные таблицы
+    │
+    └──▶ amo_support_schema (PROD) — копия на другом сервере
+            (PostgreSQL FDW + функции sync_*_smart(), запускаются через n8n каждые 5–10 мин)
+```
+
+**Домены:** `sigmasz`, `concepta`, `entrum`
+
 ## Структура проекта
 
-- `main.py` — точка входа для Airbyte CDK
-- `source_amo_custom/source.py` — основная логика коннектора:
-  - OAuth2 аутентификация через PostgreSQL (таблица `amo_tokens`)
-  - Потоки данных: `leads`, `contacts`, `events`, `pipelines`, `custom_fields_leads`, `custom_fields_contacts`, `users`
-  - Инкрементальная синхронизация для `leads`, `contacts`, `events`
-  - Full refresh для справочников
-- `Dockerfile` — сборка Docker образа
-- `build.sh` — скрипт сборки и публикации образа
-- `requirements.txt` — зависимости Python
-- `sql/triggers_is_deleted.sql` — триггеры PostgreSQL для обработки удалённых записей
+```
+source_amo_custom/   — Python код кастомного коннектора
+Dockerfile           — сборка Docker-образа
+build.sh             — сборка и публикация образа
+requirements.txt     — зависимости Python
 
-## Требования
+sql/
+  00_bootstrap_schemas_and_tables.sql          — схемы, таблицы L2, вспомогательные функции
+  01_rebuild_functions_and_triggers_static.sql — триггеры и функции L1→L2 (все домены)
+  02_prod_fdw_sync.sql                         — функции L2→PROD FDW sync (все домены)
+  archive/                                     — устаревшие и переходные скрипты
 
-- PostgreSQL база с таблицей `amo_tokens` для хранения OAuth токенов
-- AmoCRM интеграция с `client_id` и `client_secret`
-- Airbyte (self-hosted через `abctl` или cloud)
+docs/
+  00_overview.md              — обзор архитектуры
+  01_help_custom_connector.md — детали коннектора
+  02_help_L1_triggers.md      — детали триггеров L1→L2
+  03_help_L2_L3_sync.md       — детали FDW синхронизации
+  archive/                    — устаревшие документы
+```
 
-## Настройка PostgreSQL
+## Порядок установки с нуля
 
-Создайте таблицу для токенов:
+### Шаг 1. Настройка PostgreSQL (Analytics-сервер)
+
+Создайте таблицу для OAuth-токенов:
 
 ```sql
 CREATE TABLE amo_tokens (
@@ -37,7 +62,69 @@ CREATE TABLE amo_tokens (
 );
 ```
 
-## Сборка и публикация
+### Шаг 2. Запустить bootstrap (схемы и таблицы L2)
+
+```bash
+psql -f sql/00_bootstrap_schemas_and_tables.sql
+```
+
+### Шаг 3. Запустить первую синхронизацию Airbyte
+
+Airbyte создаёт схему `airbyte_raw` и таблицы в ней автоматически при первом sync.
+
+### Шаг 4. Создать функции и триггеры L1→L2
+
+```bash
+psql -f sql/01_rebuild_functions_and_triggers_static.sql
+```
+
+После этого триггеры автоматически переносят данные из `airbyte_raw` в `prod_sync` при каждой синхронизации Airbyte.
+
+Если таблицы для `concepta` / `entrum` в `airbyte_raw` уже существуют, подключите триггеры вручную:
+
+```sql
+SELECT prod_sync.attach_domain_triggers('concepta');
+SELECT prod_sync.attach_domain_triggers('entrum');
+```
+
+### Шаг 5. Настройка FDW и PROD-синхронизации (PROD-сервер)
+
+Выполнить **на PROD-сервере** (где расположена `amo_support_schema`):
+
+```sql
+-- 1. Настроить FDW (один раз)
+CREATE EXTENSION IF NOT EXISTS postgres_fdw;
+CREATE SERVER airbyte_analytics_server FOREIGN DATA WRAPPER postgres_fdw
+    OPTIONS (host '<analytics_host>', port '5432', dbname '<analytics_db>');
+CREATE USER MAPPING FOR CURRENT_USER SERVER airbyte_analytics_server
+    OPTIONS (user '<readonly_user>', password '<password>');
+
+-- 2. Импортировать foreign tables
+CREATE SCHEMA IF NOT EXISTS airbyte_remote;
+IMPORT FOREIGN SCHEMA "prod_sync"
+    LIMIT TO (sigmasz_leads, sigmasz_contacts, sigmasz_lead_contacts,
+              sigmasz_contact_phones, sigmasz_contact_emails,
+              concepta_leads, concepta_contacts, concepta_lead_contacts,
+              concepta_contact_phones, concepta_contact_emails,
+              entrum_leads, entrum_contacts, entrum_lead_contacts,
+              entrum_contact_phones, entrum_contact_emails)
+    FROM SERVER airbyte_analytics_server INTO airbyte_remote;
+
+-- 3. Создать sync-функции
+\i sql/02_prod_fdw_sync.sql
+```
+
+### Шаг 6. Запланировать синхронизацию через n8n
+
+Добавить в n8n workflow (каждые 5–10 минут):
+
+```sql
+SELECT * FROM amo_support_schema.sync_sigmasz_smart();
+SELECT * FROM amo_support_schema.sync_concepta_smart();
+SELECT * FROM amo_support_schema.sync_entrum_smart();
+```
+
+## Сборка и публикация коннектора
 
 ```bash
 IMAGE=kotstantin/amo-airbyte TAG=3.9.0 ./build.sh
@@ -50,24 +137,12 @@ IMAGE=kotstantin/amo-airbyte TAG=3.9.0 ./build.sh
 1. Создайте **Custom Source** в Airbyte UI
 2. Укажите Docker образ: `kotstantin/amo-airbyte:3.9.0`
 3. Заполните параметры подключения:
-   - **Domain** — субдомен AmoCRM (например, `mycompany`)
+   - **Domain** — субдомен AmoCRM (например, `sigmasz`)
    - **Client ID** и **Client Secret** — из настроек интеграции AmoCRM
    - **PostgreSQL credentials** — для доступа к таблице `amo_tokens`
    - **Start Date** — Unix timestamp начала синхронизации:
      - `≤ 1420070400` (1 янв 2015) — полная загрузка всех данных
      - `> 1420070400` — инкрементальная синхронизация с указанной даты
-
-## Режимы синхронизации
-
-### Full Load Mode (`start_date ≤ 1420070400`)
-- Загружает **все** записи без фильтров по дате
-- Использует `order[id]=asc` для стабильной пагинации
-- Игнорирует сохранённое состояние (cursor)
-
-### Incremental Mode (`start_date > 1420070400`)
-- Загружает только изменённые записи с `updated_at >= start_date`
-- Использует cursor для отслеживания прогресса
-- Применяет фильтр `filter[updated_at][from]`
 
 ## Потоки данных
 
@@ -81,63 +156,18 @@ IMAGE=kotstantin/amo-airbyte TAG=3.9.0 ./build.sh
 | `custom_fields_contacts` | Full Refresh | Кастомные поля для контактов |
 | `users` | Full Refresh | Пользователи |
 
-## Обработка удалённых записей
-
-После синхронизации выполните SQL скрипт для проставления `is_deleted`:
-
-```sql
--- Создать триггеры и функции
-\i sql/triggers_is_deleted.sql
-
--- Обработать все events после перезагрузки
-SELECT * FROM airbyte_raw.process_all_deleted_events();
-```
-
 ## Особенности
 
 - **Rate limiting**: задержка 0.1 сек между запросами (лимит AmoCRM: 7 req/sec)
 - **Токены**: автоматическое обновление через PostgreSQL с блокировкой
 - **Пагинация**: максимум 250 записей на страницу (лимит AmoCRM API)
 - **Обработка ошибок**: retry для 429 (rate limit) и 5xx ошибок
-
-## 🔍 Анализ синхронизации L2 → Production
-
-**Проведён глубокий анализ всей цепочки синхронизации данных.**
-
-Выявлены **4 КРИТИЧЕСКИЕ проблемы** и **8 рисков среднего уровня**:
-
-### 🔴 Критичные:
-1. **Несоответствие доменов** (concepta/entrum vs sigmasz) — таблицы не созданы на Production
-2. **Недостаточная проверка при Ghost Busting** — может удалить 99% данных
-3. **Отсутствие PRIMARY KEY на Production** — синхронизация падает
-4. **Clock Skew между L2 и Production** — пропуск данных в "мертвой зоне"
-
-### 📋 Файлы анализа:
-- [`SYNCHRONIZATION_ANALYSIS_AND_ISSUES.md`](./SYNCHRONIZATION_ANALYSIS_AND_ISSUES.md) — полный анализ всех 12 проблем
-- [`CRITICAL_FIXES.sql`](./sql/CRITICAL_FIXES.sql) — готовые SQL-скрипты для исправлений
-- [`MONITORING_AND_ALERTS.sql`](./sql/MONITORING_AND_ALERTS.sql) — дашборды и мониторинг
-- [`SYNCHRONIZATION_ANALYSIS_SUMMARY.md`](./SYNCHRONIZATION_ANALYSIS_SUMMARY.md) — краткое резюме
-
-### ⚡ Срочные действия:
-```sql
--- 1. Проверить наличие таблиц на Production
-\dt amo_support_schema.concepta_*
-
--- 2. Выполнить исправления
-\i sql/CRITICAL_FIXES.sql
-
--- 3. Настроить мониторинг
-\i sql/MONITORING_AND_ALERTS.sql
-
--- 4. Проверить здоровье синхронизации
-SELECT * FROM amo_support_schema.check_sync_health();
-```
-
----
+- **Tombstone Shield**: защита от повторной вставки удалённых записей
+- **Dead Letter Queue**: карантин для строк с ошибками обработки
+- **Ghost Busting**: периодическая (раз в час) очистка удалённых записей в PROD
+- **Advisory lock**: защита от параллельных sync-запусков
 
 ## Разработка
-
-Для локальной разработки:
 
 ```bash
 # Установка зависимостей
