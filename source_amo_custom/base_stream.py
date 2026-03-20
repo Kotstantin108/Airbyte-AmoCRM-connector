@@ -105,7 +105,13 @@ class AmoStream(HttpStream):
         """Базовые параметры запроса"""
         params = {'limit': MAX_RECORDS_PER_PAGE}
         if next_page_token:
-            params.update(next_page_token)
+            params.update(
+                {
+                    key: value
+                    for key, value in next_page_token.items()
+                    if not str(key).startswith('_ab_')
+                }
+            )
         else:
             params['page'] = 1
         return params

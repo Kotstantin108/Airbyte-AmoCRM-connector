@@ -58,7 +58,7 @@ class Leads(AmoIncrementalStream):
             params.update(self._build_full_load_params(page))
         else:
             start = self._get_start_timestamp(stream_state)
-            params.update(self._build_incremental_params(start, page))
+            params.update(self._build_incremental_params(start, page, next_page_token))
         
         return params
 
@@ -82,7 +82,7 @@ class Contacts(AmoIncrementalStream):
             params.update(self._build_full_load_params(page))
         else:
             start = self._get_start_timestamp(stream_state)
-            params.update(self._build_incremental_params(start, page))
+            params.update(self._build_incremental_params(start, page, next_page_token))
         
         return params
 
@@ -109,7 +109,7 @@ class Events(AmoIncrementalStream):
             params.update(self._build_full_load_params(page))
         else:
             start = self._get_start_timestamp(stream_state)
-            params.update(self._build_incremental_params(start, page))
+            params.update(self._build_incremental_params(start, page, next_page_token))
         
         return params
 
