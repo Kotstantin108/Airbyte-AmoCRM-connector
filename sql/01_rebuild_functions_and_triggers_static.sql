@@ -225,7 +225,9 @@ BEGIN
             updated_at = COALESCE(GREATEST(EXCLUDED.updated_at, sigmasz_contacts.updated_at),
                                   EXCLUDED.updated_at, sigmasz_contacts.updated_at),
             raw_json   = sigmasz_contacts.raw_json || EXCLUDED.raw_json,
-            _synced_at = NOW();
+                _synced_at = NOW()
+            WHERE sigmasz_contacts.updated_at IS NULL
+               OR COALESCE(EXCLUDED.updated_at, '-infinity'::TIMESTAMPTZ) >= sigmasz_contacts.updated_at;
         INSERT INTO prod_sync.sigmasz_lead_contacts (lead_id, contact_id, is_main)
         VALUES (p_lead_id, v_cid, v_main)
         ON CONFLICT (lead_id, contact_id) DO UPDATE SET is_main = EXCLUDED.is_main;
@@ -318,7 +320,9 @@ BEGIN
                                EXCLUDED.updated_at, sigmasz_leads.updated_at),
         raw_json    = EXCLUDED.raw_json,
         is_deleted  = FALSE,
-        _synced_at  = NOW();
+            _synced_at  = NOW()
+        WHERE sigmasz_leads.updated_at IS NULL
+           OR COALESCE(EXCLUDED.updated_at, '-infinity'::TIMESTAMPTZ) >= sigmasz_leads.updated_at;
     v_ec := v_emb -> 'contacts';
     IF v_ec IS NOT NULL AND jsonb_typeof(v_ec) = 'array' THEN
         PERFORM prod_sync.process_embedded_contacts(v_ec, v_lid, jsonb_array_length(v_ec) = 0);
@@ -389,7 +393,9 @@ BEGIN
                               EXCLUDED.updated_at, sigmasz_contacts.updated_at),
         raw_json   = EXCLUDED.raw_json,
         is_deleted = FALSE,
-        _synced_at = NOW();
+            _synced_at = NOW()
+        WHERE sigmasz_contacts.updated_at IS NULL
+           OR COALESCE(EXCLUDED.updated_at, '-infinity'::TIMESTAMPTZ) >= sigmasz_contacts.updated_at;
     DELETE FROM prod_sync.sigmasz_contact_phones WHERE contact_id = v_cid;
     FOR v_ph IN
         SELECT DISTINCT public.normalize_phone(v.value->>'value')
@@ -481,7 +487,7 @@ BEGIN
             BEGIN v_cid:=NULLIF(BTRIM(COALESCE(v_c->>'id','')),'')::BIGINT; EXCEPTION WHEN OTHERS THEN CONTINUE; END;
             IF v_cid IS NULL OR prod_sync.is_tombstoned(%1$L,'contact',v_cid) THEN CONTINUE; END IF;
             v_ts:=prod_sync.safe_cf_to_timestamp(NULLIF(BTRIM(COALESCE(v_c->>'updated_at','')),'')); v_main:=COALESCE((v_c->>'is_main')::BOOLEAN,FALSE);
-            INSERT INTO prod_sync.%1$I_contacts (contact_id,name,updated_at,raw_json,is_deleted,_synced_at) VALUES(v_cid,v_c->>'name',v_ts,v_c,FALSE,NOW()) ON CONFLICT(contact_id) DO UPDATE SET name=EXCLUDED.name, updated_at=COALESCE(GREATEST(EXCLUDED.updated_at,%1$I_contacts.updated_at),EXCLUDED.updated_at,%1$I_contacts.updated_at), raw_json=%1$I_contacts.raw_json||EXCLUDED.raw_json, _synced_at=NOW();
+            INSERT INTO prod_sync.%1$I_contacts (contact_id,name,updated_at,raw_json,is_deleted,_synced_at) VALUES(v_cid,v_c->>'name',v_ts,v_c,FALSE,NOW()) ON CONFLICT(contact_id) DO UPDATE SET name=EXCLUDED.name, updated_at=COALESCE(GREATEST(EXCLUDED.updated_at,%1$I_contacts.updated_at),EXCLUDED.updated_at,%1$I_contacts.updated_at), raw_json=%1$I_contacts.raw_json||EXCLUDED.raw_json, _synced_at=NOW() WHERE %1$I_contacts.updated_at IS NULL OR COALESCE(EXCLUDED.updated_at, '-infinity'::TIMESTAMPTZ) >= %1$I_contacts.updated_at;
             INSERT INTO prod_sync.%1$I_lead_contacts(lead_id,contact_id,is_main) VALUES(p_lead_id,v_cid,v_main) ON CONFLICT(lead_id,contact_id) DO UPDATE SET is_main=EXCLUDED.is_main;
             v_ids:=array_append(v_ids,v_cid);
         END LOOP;
@@ -502,7 +508,7 @@ BEGIN
         BEGIN IF NEW._embedded IS NOT NULL AND BTRIM(NEW._embedded::TEXT) NOT IN('','null') THEN v_emb:=NEW._embedded::JSONB; IF jsonb_typeof(v_emb)<>'object' THEN v_emb:='{}'; END IF; END IF; EXCEPTION WHEN OTHERS THEN v_emb:='{}'; END;
         BEGIN IF NEW.custom_fields_values IS NOT NULL AND BTRIM(NEW.custom_fields_values::TEXT) NOT IN('','null') THEN v_cf:=NEW.custom_fields_values::JSONB; IF jsonb_typeof(v_cf)<>'array' THEN v_cf:='[]'; END IF; END IF; EXCEPTION WHEN OTHERS THEN v_cf:='[]'; END;
         v_rj:=jsonb_build_object('id',NEW.id,'name',NEW.name,'status_id',NEW.status_id,'pipeline_id',NEW.pipeline_id,'price',NEW.price,'created_at',NEW.created_at,'updated_at',NEW.updated_at,'is_deleted',NEW.is_deleted,'_embedded',v_emb,'custom_fields_values',v_cf);
-        INSERT INTO prod_sync.%1$I_leads(lead_id,name,status_id,pipeline_id,price,created_at,updated_at,raw_json,is_deleted,_synced_at) VALUES(v_lid,NEW.name,NEW.status_id,NEW.pipeline_id,NEW.price,v_cts,v_uts,v_rj,FALSE,NOW()) ON CONFLICT(lead_id) DO UPDATE SET name=EXCLUDED.name,status_id=EXCLUDED.status_id,pipeline_id=EXCLUDED.pipeline_id,price=EXCLUDED.price,created_at=COALESCE(GREATEST(EXCLUDED.created_at,%1$I_leads.created_at),EXCLUDED.created_at,%1$I_leads.created_at),updated_at=COALESCE(GREATEST(EXCLUDED.updated_at,%1$I_leads.updated_at),EXCLUDED.updated_at,%1$I_leads.updated_at),raw_json=EXCLUDED.raw_json,is_deleted=FALSE,_synced_at=NOW();
+        INSERT INTO prod_sync.%1$I_leads(lead_id,name,status_id,pipeline_id,price,created_at,updated_at,raw_json,is_deleted,_synced_at) VALUES(v_lid,NEW.name,NEW.status_id,NEW.pipeline_id,NEW.price,v_cts,v_uts,v_rj,FALSE,NOW()) ON CONFLICT(lead_id) DO UPDATE SET name=EXCLUDED.name,status_id=EXCLUDED.status_id,pipeline_id=EXCLUDED.pipeline_id,price=EXCLUDED.price,created_at=COALESCE(GREATEST(EXCLUDED.created_at,%1$I_leads.created_at),EXCLUDED.created_at,%1$I_leads.created_at),updated_at=COALESCE(GREATEST(EXCLUDED.updated_at,%1$I_leads.updated_at),EXCLUDED.updated_at,%1$I_leads.updated_at),raw_json=EXCLUDED.raw_json,is_deleted=FALSE,_synced_at=NOW() WHERE %1$I_leads.updated_at IS NULL OR COALESCE(EXCLUDED.updated_at, '-infinity'::TIMESTAMPTZ) >= %1$I_leads.updated_at;
         v_ec:=v_emb->'contacts'; IF v_ec IS NOT NULL AND jsonb_typeof(v_ec)='array' THEN PERFORM prod_sync.process_embedded_contacts_%1$s(v_ec,v_lid,jsonb_array_length(v_ec)=0); END IF;
         RETURN NEW;
     EXCEPTION WHEN invalid_text_representation OR numeric_value_out_of_range OR invalid_parameter_value OR data_exception THEN
@@ -520,7 +526,7 @@ BEGIN
         BEGIN IF pg_typeof(NEW.updated_at) IN('bigint'::REGTYPE,'integer'::REGTYPE) THEN v_uts:=prod_sync.safe_cf_to_timestamp(NEW.updated_at::TEXT); ELSE v_uts:=NEW.updated_at::TIMESTAMPTZ; END IF; EXCEPTION WHEN OTHERS THEN v_uts:=NULL; END;
         BEGIN IF NEW.custom_fields_values IS NOT NULL AND BTRIM(NEW.custom_fields_values::TEXT) NOT IN('','null') THEN v_cf:=NEW.custom_fields_values::JSONB; IF jsonb_typeof(v_cf)<>'array' THEN v_cf:='[]'; END IF; END IF; EXCEPTION WHEN OTHERS THEN v_cf:='[]'; END;
         v_rj:=jsonb_build_object('id',NEW.id,'name',NEW.name,'updated_at',NEW.updated_at,'is_deleted',NEW.is_deleted,'custom_fields_values',v_cf);
-        INSERT INTO prod_sync.%1$I_contacts(contact_id,name,updated_at,raw_json,is_deleted,_synced_at) VALUES(v_cid,NEW.name,v_uts,v_rj,FALSE,NOW()) ON CONFLICT(contact_id) DO UPDATE SET name=EXCLUDED.name,updated_at=COALESCE(GREATEST(EXCLUDED.updated_at,%1$I_contacts.updated_at),EXCLUDED.updated_at,%1$I_contacts.updated_at),raw_json=EXCLUDED.raw_json,is_deleted=FALSE,_synced_at=NOW();
+        INSERT INTO prod_sync.%1$I_contacts(contact_id,name,updated_at,raw_json,is_deleted,_synced_at) VALUES(v_cid,NEW.name,v_uts,v_rj,FALSE,NOW()) ON CONFLICT(contact_id) DO UPDATE SET name=EXCLUDED.name,updated_at=COALESCE(GREATEST(EXCLUDED.updated_at,%1$I_contacts.updated_at),EXCLUDED.updated_at,%1$I_contacts.updated_at),raw_json=EXCLUDED.raw_json,is_deleted=FALSE,_synced_at=NOW() WHERE %1$I_contacts.updated_at IS NULL OR COALESCE(EXCLUDED.updated_at, '-infinity'::TIMESTAMPTZ) >= %1$I_contacts.updated_at;
         DELETE FROM prod_sync.%1$I_contact_phones WHERE contact_id=v_cid;
         FOR v_ph IN SELECT DISTINCT public.normalize_phone(v.value->>'value') FROM jsonb_array_elements(v_cf) cf CROSS JOIN LATERAL jsonb_array_elements(CASE WHEN jsonb_typeof(cf->'values')='array' THEN cf->'values' ELSE '[]' END) v WHERE cf->>'field_code'='PHONE' AND public.normalize_phone(v.value->>'value') IS NOT NULL AND length(public.normalize_phone(v.value->>'value'))>=10 LOOP INSERT INTO prod_sync.%1$I_contact_phones(contact_id,phone) VALUES(v_cid,v_ph) ON CONFLICT DO NOTHING; END LOOP;
         DELETE FROM prod_sync.%1$I_contact_emails WHERE contact_id=v_cid;
