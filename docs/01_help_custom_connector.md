@@ -56,7 +56,7 @@ source_amo_custom/
 | `SourceAmoCustom.spec()` | Возвращает спецификацию для UI Airbyte |
 | `SourceAmoCustom.check_connection()` | Проверяет подключение к PostgreSQL и AmoCRM |
 | `SourceAmoCustom.streams()` | Создаёт и возвращает список из 7 потоков |
-| `Leads` | Поток сделок. Инкрементальный, cursor = `updated_at`, составной PK `(id, updated_at)` |
+| `Leads` | Поток сделок. Инкрементальный, cursor = `updated_at`, primary key = `id` |
 | `Contacts` | Поток контактов. Инкрементальный, cursor = `updated_at` |
 | `Events` | Поток событий удаления. Фильтрует `lead_deleted` и `contact_deleted` |
 | `Pipelines` | Воронки продаж. Full Refresh, без пагинации |
@@ -82,7 +82,7 @@ source_amo_custom/
 |---|---|
 | `state` (getter/setter) | Управление cursor. В full-load режиме сохранённый state игнорируется |
 | `get_updated_state()` | Обновляет cursor = `max(текущий, latest_record)` |
-| `_get_start_timestamp()` | Вычисляет начальный timestamp с overlap-окном (60 сек назад) |
+| `_get_start_timestamp()` | Вычисляет начальный timestamp с overlap-окном (600 сек назад) |
 | `_is_full_load_mode()` | `True` если `start_date == 0` |
 | `_build_incremental_params()` | Параметры запроса: `filter[cursor][from]=start`, `order[cursor]=asc` |
 | `_build_full_load_params()` | Параметры запроса: `order[id]=asc`, без фильтра по дате |
@@ -114,7 +114,7 @@ source_amo_custom/
 | `FULL_LOAD_THRESHOLD` | `0` | Порог: `start_date=0` → полная загрузка |
 | `MAX_RECORDS_PER_PAGE` | `250` | Лимит AmoCRM API |
 | `RATE_LIMIT_DELAY_SECONDS` | `0.1` | Задержка между запросами |
-| `OVERLAP_SECONDS` | `60` | Окно перезагрузки для consistency |
+| `OVERLAP_SECONDS` | `600` | Окно перезагрузки для consistency |
 | `BACKOFF_RATE_LIMIT` | `10.0` | Backoff при 429 |
 | `BACKOFF_SERVER_ERROR` | `20.0` | Backoff при 5xx |
 | `BACKOFF_UNAUTHORIZED` | `1.0` | Backoff при 401 |
@@ -131,7 +131,7 @@ source_amo_custom/
 ### Incremental (`start_date > 0`)
 - Загружает записи с `updated_at >= start_date`
 - Использует cursor для отслеживания прогресса
-- Overlap 60 сек — перезагружает последнюю минуту для eventual consistency
+- Overlap 600 сек — перезагружает последние 10 минут для eventual consistency
 - Дубликаты обрабатываются Airbyte через dedup по primary key
 
 ---
