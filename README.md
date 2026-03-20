@@ -127,8 +127,17 @@ SELECT * FROM amo_support_schema.sync_entrum_smart();
 ## Сборка и публикация коннектора
 
 ```bash
+./build.sh
+
+# или явно задать образ
+IMAGE=kotstantin/amo-airbyte ./build.sh
+
+# или вручную задать TAG
 IMAGE=kotstantin/amo-airbyte TAG=3.9.0 ./build.sh
 ```
+
+Если `TAG` не передан, `build.sh` генерирует его автоматически в формате
+`YYYYMMDD-HHMMSS-<short_sha>`, например `20260320-110907-ae44436`.
 
 Скрипт автоматически конвертирует CRLF → LF для всех файлов.
 

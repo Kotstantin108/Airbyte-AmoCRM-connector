@@ -9,9 +9,15 @@ git restore . 2>/dev/null || git checkout . 2>/dev/null
 echo "Скачиваем последние изменения с GitHub..."
 git pull origin main
 
-# Usage: IMAGE=kotstantin/amo-airbyte TAG=1.0.0 ./build.sh
+# Usage:
+#   ./build.sh
+#   IMAGE=kotstantin/amo-airbyte ./build.sh
+#   IMAGE=kotstantin/amo-airbyte TAG=3.9.0 ./build.sh
 IMAGE="${IMAGE:-kotstantin/amo-airbyte}"
-TAG="${TAG:-1.0.0}"
+if [[ -z "${TAG:-}" ]]; then
+	TAG="$(date -u +%Y%m%d-%H%M%S)-$(git rev-parse --short HEAD)"
+	echo "TAG не задан, используем автоматически: ${TAG}"
+fi
 
 # Конвертация CRLF → LF для Linux-контейнера
 sed -i 's/\r$//' Dockerfile build.sh main.py requirements.txt
