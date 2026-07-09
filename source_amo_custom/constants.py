@@ -21,3 +21,11 @@ INCREMENTAL_WINDOW_SECONDS = 3600
 BACKOFF_RATE_LIMIT = 10.0
 BACKOFF_SERVER_ERROR = 20.0
 BACKOFF_UNAUTHORIZED = 1.0
+
+# HTTP таймауты (секунды). Read timeout — максимальная пауза между байтами
+# ответа (не общее время запроса). Без него молчащий сокет amoCRM вешает
+# процесс навсегда: инцидент 2026-07-08, replication-под висел 24 часа
+# на recv и блокировал все синки. Timeout-исключение ретраится CDK/Airbyte.
+HTTP_CONNECT_TIMEOUT_SECONDS = 10
+HTTP_READ_TIMEOUT_SECONDS = 120
+TOKEN_REFRESH_TIMEOUT_SECONDS = 30

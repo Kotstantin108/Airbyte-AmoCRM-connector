@@ -5,6 +5,8 @@ import requests
 import psycopg2
 from datetime import datetime, timedelta
 
+from .constants import HTTP_CONNECT_TIMEOUT_SECONDS, TOKEN_REFRESH_TIMEOUT_SECONDS
+
 logger = logging.getLogger("airbyte")
 
 
@@ -78,7 +80,12 @@ class DatabaseTokenManager:
             "refresh_token": refresh_token,
             "redirect_uri": "https://airbyte.io"
         }
-        resp = requests.post(url, json=payload)
+        # Таймаут обязателен: запрос выполняется под FOR UPDATE-локом строки
+        # amo_tokens — вечный recv здесь держит и под, и блокировку в БД
+        resp = requests.post(
+            url, json=payload,
+            timeout=(HTTP_CONNECT_TIMEOUT_SECONDS, TOKEN_REFRESH_TIMEOUT_SECONDS)
+        )
         if not resp.ok:
             logger.error(f"Refresh failed: {resp.status_code} - {resp.text}")
         resp.raise_for_status()

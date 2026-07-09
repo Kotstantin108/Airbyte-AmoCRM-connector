@@ -10,6 +10,7 @@ from airbyte_cdk.sources.streams.http import HttpStream
 
 from .constants import MAX_RECORDS_PER_PAGE, RATE_LIMIT_DELAY_SECONDS
 from .constants import BACKOFF_RATE_LIMIT, BACKOFF_SERVER_ERROR, BACKOFF_UNAUTHORIZED
+from .constants import HTTP_CONNECT_TIMEOUT_SECONDS, HTTP_READ_TIMEOUT_SECONDS
 
 logger = logging.getLogger("airbyte")
 
@@ -33,6 +34,10 @@ class AmoStream(HttpStream):
         """Добавляет Bearer токен в заголовки"""
         token = self.token_manager.get_valid_token()
         return {"Authorization": f"Bearer {token}"}
+
+    def request_kwargs(self, *args, **kwargs) -> Mapping[str, Any]:
+        """Kwargs для session.send: connect/read таймауты (иначе recv вечный)"""
+        return {"timeout": (HTTP_CONNECT_TIMEOUT_SECONDS, HTTP_READ_TIMEOUT_SECONDS)}
 
     def should_retry(self, response: requests.Response) -> bool:
         """Определяет, нужно ли повторить запрос при ошибке"""

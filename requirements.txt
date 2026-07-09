@@ -1,3 +1,6 @@
-airbyte-cdk>=0.80.0
+# Запинено на версии из проверенного образа 20260320-080102-d4895db:
+# request_kwargs→session.send подтверждён в CDK 7.13.0; незапиненный
+# major bump CDK при пересборке может молча сломать коннектор.
+airbyte-cdk==7.13.0
 requests>=2.28.0
 psycopg2-binary>=2.9.0
